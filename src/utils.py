@@ -45,3 +45,5 @@ def format_number(n: int) -> str:
     return f"{n:.1f}T"
 
 # Update documentation for deployment options [2025-06-12T17:28:14]
+
+# Add causal impact analysis for events [2025-06-16T10:14:33]

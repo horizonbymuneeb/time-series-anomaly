@@ -236,3 +236,4 @@
 [2026-06-11T13:49:00] Isolation forest
 [2025-06-12T17:28:14] Update documentation for deployment options
 [2025-06-15T17:54:41] Implement ensemble of multiple detectors
+[2025-06-16T10:14:33] Add causal impact analysis for events
