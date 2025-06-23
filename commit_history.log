@@ -240,3 +240,4 @@
 [2025-06-16T14:44:01] Implement root cause analysis correlation
 [2025-06-17T09:51:21] Fix missing value handling in preprocessing
 [2025-06-19T11:56:53] Implement ensemble of multiple detectors
+[2025-06-23T19:16:06] Update isolation forest implementation
