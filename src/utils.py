@@ -53,3 +53,5 @@ def format_number(n: int) -> str:
 # Fix missing value handling in preprocessing [2025-06-17T09:51:21]
 
 # Update isolation forest implementation [2025-06-23T19:16:06]
+
+# Fix sliding window edge case handling [2025-06-23T14:14:02]
