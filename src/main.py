@@ -182,3 +182,5 @@ if __name__ == '__main__':
 # Add causal impact analysis for events [2025-06-24T13:28:52]
 
 # WIP: debugging false positive rate spikes [2025-06-24T12:22:34]
+
+# Implement LSTM autoencoder for anomaly detection [2025-06-28T19:58:03]

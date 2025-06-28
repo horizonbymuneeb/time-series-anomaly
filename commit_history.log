@@ -244,3 +244,4 @@
 [2025-06-23T14:14:02] Fix sliding window edge case handling
 [2025-06-24T13:28:52] Add causal impact analysis for events
 [2025-06-24T12:22:34] WIP: debugging false positive rate spikes
+[2025-06-28T19:58:03] Implement LSTM autoencoder for anomaly detection
