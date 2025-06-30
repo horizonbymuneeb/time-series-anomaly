@@ -184,3 +184,5 @@ if __name__ == '__main__':
 # WIP: debugging false positive rate spikes [2025-06-24T12:22:34]
 
 # Implement LSTM autoencoder for anomaly detection [2025-06-28T19:58:03]
+
+# Update Prometheus exporter for metrics [2025-06-30T18:23:58]
