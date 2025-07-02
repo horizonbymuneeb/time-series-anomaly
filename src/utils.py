@@ -55,3 +55,5 @@ def format_number(n: int) -> str:
 # Update isolation forest implementation [2025-06-23T19:16:06]
 
 # Fix sliding window edge case handling [2025-06-23T14:14:02]
+
+# Implement LSTM autoencoder for anomaly detection [2025-07-02T13:31:14]
