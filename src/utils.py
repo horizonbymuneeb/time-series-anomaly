@@ -57,3 +57,5 @@ def format_number(n: int) -> str:
 # Fix sliding window edge case handling [2025-06-23T14:14:02]
 
 # Implement LSTM autoencoder for anomaly detection [2025-07-02T13:31:14]
+
+# WIP: tuning threshold for business metrics [2025-07-07T19:17:35]
