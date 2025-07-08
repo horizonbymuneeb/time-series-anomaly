@@ -59,3 +59,5 @@ def format_number(n: int) -> str:
 # Implement LSTM autoencoder for anomaly detection [2025-07-02T13:31:14]
 
 # WIP: tuning threshold for business metrics [2025-07-07T19:17:35]
+
+# Add Prophet-based anomaly detection pipeline [2025-07-08T14:46:28]
