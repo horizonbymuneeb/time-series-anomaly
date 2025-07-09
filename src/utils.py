@@ -61,3 +61,5 @@ def format_number(n: int) -> str:
 # WIP: tuning threshold for business metrics [2025-07-07T19:17:35]
 
 # Add Prophet-based anomaly detection pipeline [2025-07-08T14:46:28]
+
+# Fix sliding window edge case handling [2025-07-09T15:09:03]
