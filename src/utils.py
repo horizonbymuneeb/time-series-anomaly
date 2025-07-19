@@ -69,3 +69,5 @@ def format_number(n: int) -> str:
 # Implement real-time streaming detection [2025-07-13T18:48:53]
 
 # Add Prophet-based anomaly detection pipeline [2025-07-17T17:19:25]
+
+# WIP: benchmarking on Yahoo anomaly dataset [2025-07-19T12:27:05]
