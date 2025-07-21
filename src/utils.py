@@ -73,3 +73,5 @@ def format_number(n: int) -> str:
 # WIP: benchmarking on Yahoo anomaly dataset [2025-07-19T12:27:05]
 
 # Add support for multi-variate time series [2025-07-21T17:34:35]
+
+# Update isolation forest implementation [2025-07-21T09:46:10]
