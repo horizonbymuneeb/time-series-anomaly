@@ -263,3 +263,4 @@
 [2025-07-19T12:27:05] WIP: benchmarking on Yahoo anomaly dataset
 [2025-07-21T17:34:35] Add support for multi-variate time series
 [2025-07-21T09:46:10] Update isolation forest implementation
+[2025-07-22T16:55:52] Add alerting integration with PagerDuty API
