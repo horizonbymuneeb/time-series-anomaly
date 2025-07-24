@@ -204,3 +204,5 @@ if __name__ == '__main__':
 # Add alerting integration with PagerDuty API [2025-07-22T16:55:52]
 
 # Add seasonality decomposition for trends [2025-07-23T12:15:21]
+
+# WIP: benchmarking on Yahoo anomaly dataset [2025-07-24T16:04:12]
