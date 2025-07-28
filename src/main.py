@@ -206,3 +206,5 @@ if __name__ == '__main__':
 # Add seasonality decomposition for trends [2025-07-23T12:15:21]
 
 # WIP: benchmarking on Yahoo anomaly dataset [2025-07-24T16:04:12]
+
+# Implement real-time streaming detection [2025-07-28T16:45:57]
