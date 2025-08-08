@@ -210,3 +210,5 @@ if __name__ == '__main__':
 # Implement real-time streaming detection [2025-07-28T16:45:57]
 
 # WIP: tuning threshold for business metrics [2025-07-28T16:11:59]
+
+# Update dashboard with real-time Plotly charts [2025-08-08T10:01:35]
