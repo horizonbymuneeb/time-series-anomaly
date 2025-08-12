@@ -212,3 +212,5 @@ if __name__ == '__main__':
 # WIP: tuning threshold for business metrics [2025-07-28T16:11:59]
 
 # Update dashboard with real-time Plotly charts [2025-08-08T10:01:35]
+
+# Update documentation for deployment options [2025-08-12T15:19:33]
