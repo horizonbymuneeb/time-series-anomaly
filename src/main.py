@@ -214,3 +214,5 @@ if __name__ == '__main__':
 # Update dashboard with real-time Plotly charts [2025-08-08T10:01:35]
 
 # Update documentation for deployment options [2025-08-12T15:19:33]
+
+# Add Prophet-based anomaly detection pipeline [2025-08-14T10:40:04]
