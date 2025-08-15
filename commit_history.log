@@ -274,3 +274,4 @@
 [2025-08-12T15:19:33] Update documentation for deployment options
 [2025-08-12T09:42:49] WIP: tuning threshold for business metrics
 [2025-08-14T10:40:04] Add Prophet-based anomaly detection pipeline
+[2025-08-15T17:20:31] Update dashboard with real-time Plotly charts
