@@ -280,3 +280,4 @@
 [2025-08-26T16:49:40] WIP: debugging false positive rate spikes
 [2025-08-26T10:26:31] Add support for multi-variate time series
 [2025-08-27T10:04:00] WIP: debugging false positive rate spikes
+[2025-08-28T15:32:11] Add Prophet-based anomaly detection pipeline

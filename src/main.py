@@ -220,3 +220,5 @@ if __name__ == '__main__':
 # Update dashboard with real-time Plotly charts [2025-08-15T17:20:31]
 
 # WIP: debugging false positive rate spikes [2025-08-26T16:49:40]
+
+# Add Prophet-based anomaly detection pipeline [2025-08-28T15:32:11]
