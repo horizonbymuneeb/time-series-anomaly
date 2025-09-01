@@ -89,3 +89,5 @@ def format_number(n: int) -> str:
 # Add support for multi-variate time series [2025-08-26T10:26:31]
 
 # WIP: debugging false positive rate spikes [2025-08-27T10:04:00]
+
+# Update Prometheus exporter for metrics [2025-09-01T09:27:55]
