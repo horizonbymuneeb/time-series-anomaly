@@ -282,3 +282,4 @@
 [2025-08-27T10:04:00] WIP: debugging false positive rate spikes
 [2025-08-28T15:32:11] Add Prophet-based anomaly detection pipeline
 [2025-09-01T09:27:55] Update Prometheus exporter for metrics
+[2025-09-02T13:39:26] Implement unsupervised pretraining pipeline

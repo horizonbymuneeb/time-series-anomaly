@@ -91,3 +91,5 @@ def format_number(n: int) -> str:
 # WIP: debugging false positive rate spikes [2025-08-27T10:04:00]
 
 # Update Prometheus exporter for metrics [2025-09-01T09:27:55]
+
+# Implement unsupervised pretraining pipeline [2025-09-02T13:39:26]
