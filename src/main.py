@@ -222,3 +222,5 @@ if __name__ == '__main__':
 # WIP: debugging false positive rate spikes [2025-08-26T16:49:40]
 
 # Add Prophet-based anomaly detection pipeline [2025-08-28T15:32:11]
+
+# Add causal impact analysis for events [2025-09-03T20:09:32]
