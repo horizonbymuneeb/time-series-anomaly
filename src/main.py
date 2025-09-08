@@ -226,3 +226,5 @@ if __name__ == '__main__':
 # Add causal impact analysis for events [2025-09-03T20:09:32]
 
 # Implement unsupervised pretraining pipeline [2025-09-03T19:14:39]
+
+# WIP: debugging false positive rate spikes [2025-09-08T14:45:24]
