@@ -228,3 +228,5 @@ if __name__ == '__main__':
 # Implement unsupervised pretraining pipeline [2025-09-03T19:14:39]
 
 # WIP: debugging false positive rate spikes [2025-09-08T14:45:24]
+
+# Implement real-time streaming detection [2025-09-09T19:44:37]
