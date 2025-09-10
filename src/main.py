@@ -230,3 +230,5 @@ if __name__ == '__main__':
 # WIP: debugging false positive rate spikes [2025-09-08T14:45:24]
 
 # Implement real-time streaming detection [2025-09-09T19:44:37]
+
+# Add alerting integration with PagerDuty API [2025-09-10T19:50:42]
