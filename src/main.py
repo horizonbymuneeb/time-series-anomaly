@@ -236,3 +236,5 @@ if __name__ == '__main__':
 # Add support for multi-variate time series [2025-09-10T20:28:18]
 
 # Fix missing value handling in preprocessing [2025-09-11T10:42:43]
+
+# Add seasonality decomposition for trends [2025-09-12T12:11:16]
