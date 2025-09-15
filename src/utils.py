@@ -95,3 +95,5 @@ def format_number(n: int) -> str:
 # Implement unsupervised pretraining pipeline [2025-09-02T13:39:26]
 
 # Update documentation for deployment options [2025-09-09T10:47:41]
+
+# Add support for multi-variate time series [2025-09-15T09:05:00]
