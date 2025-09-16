@@ -97,3 +97,5 @@ def format_number(n: int) -> str:
 # Update documentation for deployment options [2025-09-09T10:47:41]
 
 # Add support for multi-variate time series [2025-09-15T09:05:00]
+
+# Implement LSTM autoencoder for anomaly detection [2025-09-16T11:00:49]
