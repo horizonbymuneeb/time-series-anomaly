@@ -246,3 +246,5 @@ if __name__ == '__main__':
 # Implement real-time streaming detection [2025-09-18T15:11:55]
 
 # Fix sliding window edge case handling [2025-09-23T16:28:14]
+
+# WIP: benchmarking on Yahoo anomaly dataset [2025-09-25T11:09:59]
