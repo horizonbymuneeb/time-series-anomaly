@@ -248,3 +248,5 @@ if __name__ == '__main__':
 # Fix sliding window edge case handling [2025-09-23T16:28:14]
 
 # WIP: benchmarking on Yahoo anomaly dataset [2025-09-25T11:09:59]
+
+# WIP: debugging false positive rate spikes [2025-09-29T14:41:51]
