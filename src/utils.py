@@ -105,3 +105,5 @@ def format_number(n: int) -> str:
 # Implement root cause analysis correlation [2025-09-22T13:31:13]
 
 # WIP: debugging false positive rate spikes [2025-09-22T09:56:02]
+
+# Update dashboard with real-time Plotly charts [2025-10-01T19:04:10]
