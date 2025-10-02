@@ -252,3 +252,5 @@ if __name__ == '__main__':
 # WIP: debugging false positive rate spikes [2025-09-29T14:41:51]
 
 # WIP: benchmarking on Yahoo anomaly dataset [2025-09-29T20:28:38]
+
+# Add Prophet-based anomaly detection pipeline [2025-10-02T19:04:56]
