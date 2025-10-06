@@ -306,3 +306,4 @@
 [2025-09-29T20:28:38] WIP: benchmarking on Yahoo anomaly dataset
 [2025-10-01T19:04:10] Update dashboard with real-time Plotly charts
 [2025-10-02T19:04:56] Add Prophet-based anomaly detection pipeline
+[2025-10-06T13:01:14] Add Prophet-based anomaly detection pipeline
