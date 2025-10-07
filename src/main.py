@@ -254,3 +254,5 @@ if __name__ == '__main__':
 # WIP: benchmarking on Yahoo anomaly dataset [2025-09-29T20:28:38]
 
 # Add Prophet-based anomaly detection pipeline [2025-10-02T19:04:56]
+
+# Add support for multi-variate time series [2025-10-07T11:13:29]

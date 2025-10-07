@@ -308,3 +308,4 @@
 [2025-10-02T19:04:56] Add Prophet-based anomaly detection pipeline
 [2025-10-06T13:01:14] Add Prophet-based anomaly detection pipeline
 [2025-10-06T20:24:12] Update dashboard with real-time Plotly charts
+[2025-10-07T11:13:29] Add support for multi-variate time series
