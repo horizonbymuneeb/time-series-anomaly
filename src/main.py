@@ -256,3 +256,5 @@ if __name__ == '__main__':
 # Add Prophet-based anomaly detection pipeline [2025-10-02T19:04:56]
 
 # Add support for multi-variate time series [2025-10-07T11:13:29]
+
+# Update Prometheus exporter for metrics [2025-10-08T10:59:10]
