@@ -258,3 +258,5 @@ if __name__ == '__main__':
 # Add support for multi-variate time series [2025-10-07T11:13:29]
 
 # Update Prometheus exporter for metrics [2025-10-08T10:59:10]
+
+# Update documentation for deployment options [2025-10-11T15:12:02]
