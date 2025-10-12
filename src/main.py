@@ -260,3 +260,5 @@ if __name__ == '__main__':
 # Update Prometheus exporter for metrics [2025-10-08T10:59:10]
 
 # Update documentation for deployment options [2025-10-11T15:12:02]
+
+# Implement LSTM autoencoder for anomaly detection [2025-10-12T09:59:39]
