@@ -262,3 +262,5 @@ if __name__ == '__main__':
 # Update documentation for deployment options [2025-10-11T15:12:02]
 
 # Implement LSTM autoencoder for anomaly detection [2025-10-12T09:59:39]
+
+# WIP: debugging false positive rate spikes [2025-10-16T13:21:34]
