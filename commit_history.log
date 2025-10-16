@@ -315,3 +315,4 @@
 [2025-10-12T09:59:39] Implement LSTM autoencoder for anomaly detection
 [2025-10-14T19:16:32] WIP: debugging false positive rate spikes
 [2025-10-16T13:21:34] WIP: debugging false positive rate spikes
+[2025-10-16T09:33:45] WIP: benchmarking on Yahoo anomaly dataset

@@ -264,3 +264,5 @@ if __name__ == '__main__':
 # Implement LSTM autoencoder for anomaly detection [2025-10-12T09:59:39]
 
 # WIP: debugging false positive rate spikes [2025-10-16T13:21:34]
+
+# WIP: benchmarking on Yahoo anomaly dataset [2025-10-16T09:33:45]
