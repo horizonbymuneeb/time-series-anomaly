@@ -268,3 +268,5 @@ if __name__ == '__main__':
 # WIP: benchmarking on Yahoo anomaly dataset [2025-10-16T09:33:45]
 
 # Implement ensemble of multiple detectors [2025-10-21T13:04:15]
+
+# Update isolation forest implementation [2025-10-21T11:00:24]
