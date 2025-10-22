@@ -318,3 +318,4 @@
 [2025-10-16T09:33:45] WIP: benchmarking on Yahoo anomaly dataset
 [2025-10-21T13:04:15] Implement ensemble of multiple detectors
 [2025-10-21T11:00:24] Update isolation forest implementation
+[2025-10-22T20:28:19] Implement unsupervised pretraining pipeline
