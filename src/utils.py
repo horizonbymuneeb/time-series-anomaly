@@ -119,3 +119,5 @@ def format_number(n: int) -> str:
 # Implement unsupervised pretraining pipeline [2025-10-22T20:28:19]
 
 # Implement auto-config for new metrics [2025-10-24T13:47:52]
+
+# Update documentation for deployment options [2025-10-24T16:08:45]
