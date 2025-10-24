@@ -117,3 +117,5 @@ def format_number(n: int) -> str:
 # WIP: debugging false positive rate spikes [2025-10-14T19:16:32]
 
 # Implement unsupervised pretraining pipeline [2025-10-22T20:28:19]
+
+# Implement auto-config for new metrics [2025-10-24T13:47:52]
