@@ -328,3 +328,4 @@
 [2025-10-29T17:22:51] Implement real-time streaming detection
 [2025-10-29T15:20:55] Implement LSTM autoencoder for anomaly detection
 [2025-10-30T10:01:52] Update documentation for deployment options
+[2025-10-30T11:29:01] Add Prophet-based anomaly detection pipeline

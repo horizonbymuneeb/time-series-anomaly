@@ -282,3 +282,5 @@ if __name__ == '__main__':
 # Implement real-time streaming detection [2025-10-29T17:22:51]
 
 # Implement LSTM autoencoder for anomaly detection [2025-10-29T15:20:55]
+
+# Add Prophet-based anomaly detection pipeline [2025-10-30T11:29:01]
