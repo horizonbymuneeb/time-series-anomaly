@@ -286,3 +286,5 @@ if __name__ == '__main__':
 # Add Prophet-based anomaly detection pipeline [2025-10-30T11:29:01]
 
 # Fix missing value handling in preprocessing [2025-11-09T11:27:47]
+
+# Add seasonality decomposition for trends [2025-11-12T12:50:18]
