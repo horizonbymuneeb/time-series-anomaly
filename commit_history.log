@@ -333,3 +333,4 @@
 [2025-11-07T17:31:51] Update dashboard with real-time Plotly charts
 [2025-11-09T11:27:47] Fix missing value handling in preprocessing
 [2025-11-12T12:50:18] Add seasonality decomposition for trends
+[2025-11-17T17:51:36] Update isolation forest implementation

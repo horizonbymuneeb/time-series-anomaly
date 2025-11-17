@@ -288,3 +288,5 @@ if __name__ == '__main__':
 # Fix missing value handling in preprocessing [2025-11-09T11:27:47]
 
 # Add seasonality decomposition for trends [2025-11-12T12:50:18]
+
+# Update isolation forest implementation [2025-11-17T17:51:36]
