@@ -127,3 +127,5 @@ def format_number(n: int) -> str:
 # Implement root cause analysis correlation [2025-11-01T18:18:28]
 
 # Update dashboard with real-time Plotly charts [2025-11-07T17:31:51]
+
+# Add Prophet-based anomaly detection pipeline [2025-11-26T13:05:08]
