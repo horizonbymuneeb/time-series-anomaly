@@ -296,3 +296,5 @@ if __name__ == '__main__':
 # Add alerting integration with PagerDuty API [2025-11-18T19:33:18]
 
 # Update Prometheus exporter for metrics [2025-11-19T20:28:41]
+
+# Add causal impact analysis for events [2025-11-27T10:00:14]
