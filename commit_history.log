@@ -340,3 +340,4 @@
 [2025-11-26T13:05:08] Add Prophet-based anomaly detection pipeline
 [2025-11-27T10:00:14] Add causal impact analysis for events
 [2025-12-05T11:30:49] Fix sliding window edge case handling
+[2025-12-05T10:19:53] Update dashboard with real-time Plotly charts

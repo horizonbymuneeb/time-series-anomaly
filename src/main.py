@@ -298,3 +298,5 @@ if __name__ == '__main__':
 # Update Prometheus exporter for metrics [2025-11-19T20:28:41]
 
 # Add causal impact analysis for events [2025-11-27T10:00:14]
+
+# Update dashboard with real-time Plotly charts [2025-12-05T10:19:53]
