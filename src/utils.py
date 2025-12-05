@@ -129,3 +129,5 @@ def format_number(n: int) -> str:
 # Update dashboard with real-time Plotly charts [2025-11-07T17:31:51]
 
 # Add Prophet-based anomaly detection pipeline [2025-11-26T13:05:08]
+
+# Fix sliding window edge case handling [2025-12-05T11:30:49]
