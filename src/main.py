@@ -300,3 +300,5 @@ if __name__ == '__main__':
 # Add causal impact analysis for events [2025-11-27T10:00:14]
 
 # Update dashboard with real-time Plotly charts [2025-12-05T10:19:53]
+
+# Update documentation for deployment options [2025-12-08T17:09:37]
