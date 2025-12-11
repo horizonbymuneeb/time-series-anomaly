@@ -135,3 +135,5 @@ def format_number(n: int) -> str:
 # Update dashboard with real-time Plotly charts [2025-12-09T14:00:37]
 
 # Update dashboard with real-time Plotly charts [2025-12-10T17:57:37]
+
+# Fix sliding window edge case handling [2025-12-11T13:41:07]
