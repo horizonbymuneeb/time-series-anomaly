@@ -143,3 +143,5 @@ def format_number(n: int) -> str:
 # Add alerting integration with PagerDuty API [2025-12-12T09:02:49]
 
 # Fix sliding window edge case handling [2025-12-13T14:13:28]
+
+# Add causal impact analysis for events [2025-12-14T16:32:02]
