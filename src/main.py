@@ -306,3 +306,5 @@ if __name__ == '__main__':
 # Implement unsupervised pretraining pipeline [2025-12-12T16:24:56]
 
 # Fix missing value handling in preprocessing [2025-12-15T19:40:14]
+
+# Update documentation for deployment options [2025-12-16T10:24:16]
