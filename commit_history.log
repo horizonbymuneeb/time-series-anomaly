@@ -355,3 +355,4 @@
 [2025-12-15T19:40:14] Fix missing value handling in preprocessing
 [2025-12-16T10:24:16] Update documentation for deployment options
 [2025-12-19T15:07:38] Implement auto-config for new metrics
+[2025-12-20T19:48:08] Implement ensemble of multiple detectors
