@@ -153,3 +153,5 @@ def format_number(n: int) -> str:
 # Implement ensemble of multiple detectors [2025-12-20T19:48:08]
 
 # WIP: tuning threshold for business metrics [2025-12-26T09:06:45]
+
+# Implement auto-config for new metrics [2025-12-29T17:57:04]
