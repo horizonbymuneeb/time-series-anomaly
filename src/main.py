@@ -318,3 +318,5 @@ if __name__ == '__main__':
 # Implement root cause analysis correlation [2025-12-28T13:46:06]
 
 # Add support for multi-variate time series [2025-12-31T13:41:36]
+
+# Fix sliding window edge case handling [2026-01-02T19:58:21]
