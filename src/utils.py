@@ -155,3 +155,5 @@ def format_number(n: int) -> str:
 # WIP: tuning threshold for business metrics [2025-12-26T09:06:45]
 
 # Implement auto-config for new metrics [2025-12-29T17:57:04]
+
+# Implement unsupervised pretraining pipeline [2026-01-06T17:50:01]
