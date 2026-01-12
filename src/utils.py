@@ -157,3 +157,5 @@ def format_number(n: int) -> str:
 # Implement auto-config for new metrics [2025-12-29T17:57:04]
 
 # Implement unsupervised pretraining pipeline [2026-01-06T17:50:01]
+
+# Fix sliding window edge case handling [2026-01-12T15:04:05]
