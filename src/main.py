@@ -322,3 +322,5 @@ if __name__ == '__main__':
 # Fix sliding window edge case handling [2026-01-02T19:58:21]
 
 # WIP: debugging false positive rate spikes [2026-01-06T10:39:01]
+
+# Add support for multi-variate time series [2026-01-12T12:55:29]
