@@ -10,3 +10,24 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG_PATH = REPO_ROOT / "config.yaml"
 ANOMALY_TYPES: tuple[str, ...] = ("spike", "level_shift", "variance_change", "missing_block")
+SERIES_MIN_LENGTH = 100
+
+
+@dataclass(frozen=True)
+class GeneratorConfig:
+    """Shape of the synthetic series and the anomalies injected into them."""
+
+    n_series: int = 12
+    length: int = 1500
+    period: int = 24
+    weekly_period: int = 168
+    trend_slope: float = 0.0006
+    noise_std: float = 1.0
+    ar_coefficient: float = 0.35
+    calibration_fraction: float = 0.30
+    anomaly_rate: float = 0.05
+    anomaly_types: tuple[str, ...] = ANOMALY_TYPES
+    spike_magnitude: float = 6.0
+    level_shift_offset: float = 3.0
+    variance_factor: float = 3.5
+    missing_value: float = 0.0
