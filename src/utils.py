@@ -159,3 +159,5 @@ def format_number(n: int) -> str:
 # Implement unsupervised pretraining pipeline [2026-01-06T17:50:01]
 
 # Fix sliding window edge case handling [2026-01-12T15:04:05]
+
+# Update documentation for deployment options [2026-01-13T09:39:52]
