@@ -324,3 +324,5 @@ if __name__ == '__main__':
 # WIP: debugging false positive rate spikes [2026-01-06T10:39:01]
 
 # Add support for multi-variate time series [2026-01-12T12:55:29]
+
+# Update Prometheus exporter for metrics [2026-01-13T18:13:51]

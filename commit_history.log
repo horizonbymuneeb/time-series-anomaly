@@ -367,3 +367,4 @@
 [2026-01-06T10:39:01] WIP: debugging false positive rate spikes
 [2026-01-12T12:55:29] Add support for multi-variate time series
 [2026-01-12T15:04:05] Fix sliding window edge case handling
+[2026-01-13T18:13:51] Update Prometheus exporter for metrics
