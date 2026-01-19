@@ -161,3 +161,5 @@ def format_number(n: int) -> str:
 # Fix sliding window edge case handling [2026-01-12T15:04:05]
 
 # Update documentation for deployment options [2026-01-13T09:39:52]
+
+# Add support for multi-variate time series [2026-01-19T19:42:23]
