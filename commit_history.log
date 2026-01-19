@@ -370,3 +370,4 @@
 [2026-01-13T18:13:51] Update Prometheus exporter for metrics
 [2026-01-13T09:39:52] Update documentation for deployment options
 [2026-01-19T19:42:23] Add support for multi-variate time series
+[2026-01-19T11:06:28] Add causal impact analysis for events
