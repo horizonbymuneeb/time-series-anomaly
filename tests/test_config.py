@@ -33,3 +33,37 @@ def test_overrides_apply_per_section():
 def test_missing_section_is_named():
     with pytest.raises(ValueError, match="detector"):
         build_config({"seed": 1, "generator": {}, "evaluation": {}})
+
+
+def test_invalid_values_are_rejected():
+    raw = read_yaml(DEFAULT_CONFIG_PATH)
+    raw["generator"]["calibration_fraction"] = 0.95
+    with pytest.raises(ValueError, match="calibration_fraction"):
+        build_config(raw)
+
+    raw = read_yaml(DEFAULT_CONFIG_PATH)
+    raw["detector"]["ewma_alpha"] = 0.0
+    with pytest.raises(ValueError, match="ewma_alpha"):
+        build_config(raw)
+
+    raw = read_yaml(DEFAULT_CONFIG_PATH)
+    raw["generator"]["anomaly_types"] = ["spike", "teleport"]
+    with pytest.raises(ValueError, match="anomaly_types"):
+        build_config(raw)
+
+
+def test_short_series_and_zero_noise_rejected():
+    raw = read_yaml(DEFAULT_CONFIG_PATH)
+    raw["generator"]["length"] = 20
+    raw["generator"]["noise_std"] = 0.0
+    with pytest.raises(ValueError) as error:
+        build_config(raw)
+    message = str(error.value)
+    assert "length" in message and "noise_std" in message
+
+
+def test_require_section_and_missing_file(tmp_path):
+    with pytest.raises(ValueError, match="mapping"):
+        require_section({"evaluation": 3}, "evaluation")
+    with pytest.raises(FileNotFoundError):
+        read_yaml(tmp_path / "absent.yaml")

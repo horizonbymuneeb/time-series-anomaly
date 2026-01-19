@@ -31,3 +31,25 @@ class GeneratorConfig:
     level_shift_offset: float = 3.0
     variance_factor: float = 3.5
     missing_value: float = 0.0
+
+
+@dataclass(frozen=True)
+class DetectorConfig:
+    """Detector hyperparameters and threshold calibration settings."""
+
+    zscore_window: int = 48
+    zscore_threshold_sigma: float = 4.0
+    ewma_alpha: float = 0.15
+    ewma_sigma: float = 2.5
+    iforest_window: int = 24
+    iforest_n_estimators: int = 120
+    iforest_random_state: int = 7
+    fp_budget: float = 0.01
+    delay_window: int = 12
+
+
+@dataclass(frozen=True)
+class EvaluationConfig:
+    """Evaluation knobs that are not detector-specific."""
+
+    precision_k: int = 50
