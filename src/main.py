@@ -328,3 +328,5 @@ if __name__ == '__main__':
 # Update Prometheus exporter for metrics [2026-01-13T18:13:51]
 
 # Add causal impact analysis for events [2026-01-19T11:06:28]
+
+# Implement LSTM autoencoder for anomaly detection [2026-01-21T20:11:19]
