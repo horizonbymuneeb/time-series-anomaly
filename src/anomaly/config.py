@@ -53,3 +53,34 @@ class EvaluationConfig:
     """Evaluation knobs that are not detector-specific."""
 
     precision_k: int = 50
+
+
+@dataclass(frozen=True)
+class Config:
+    """Full experiment configuration."""
+
+    seed: int
+    generator: GeneratorConfig
+    detector: DetectorConfig
+    evaluation: EvaluationConfig
+
+
+def read_yaml(path: str | Path) -> dict[str, Any]:
+    """Load a YAML mapping, raising ``FileNotFoundError`` when absent."""
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"config file not found: {path}")
+    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise ValueError("config root must be a mapping")
+    return raw
+
+
+def require_section(raw: Mapping[str, Any], name: str) -> Mapping[str, Any]:
+    """Return one config section, failing with the section name."""
+    if name not in raw:
+        raise ValueError(f"config is missing required section: {name!r}")
+    section = raw[name]
+    if not isinstance(section, Mapping):
+        raise ValueError(f"config section {name!r} must be a mapping")
+    return section
