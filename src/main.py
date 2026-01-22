@@ -332,3 +332,5 @@ if __name__ == '__main__':
 # Implement LSTM autoencoder for anomaly detection [2026-01-21T20:11:19]
 
 # Update dashboard with real-time Plotly charts [2026-01-22T16:40:25]
+
+# WIP: debugging false positive rate spikes [2026-01-22T16:18:19]
