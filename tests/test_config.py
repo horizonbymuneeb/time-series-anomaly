@@ -67,3 +67,11 @@ def test_require_section_and_missing_file(tmp_path):
         require_section({"evaluation": 3}, "evaluation")
     with pytest.raises(FileNotFoundError):
         read_yaml(tmp_path / "absent.yaml")
+
+
+def test_round_trip_and_description():
+    cfg = load_config(DEFAULT_CONFIG_PATH)
+    payload = config_to_dict(cfg)
+    assert payload["generator"]["anomaly_types"] == list(cfg.generator.anomaly_types)
+    assert "series=" in describe_config(cfg)
+    validate_config(cfg)

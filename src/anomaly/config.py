@@ -84,3 +84,15 @@ def require_section(raw: Mapping[str, Any], name: str) -> Mapping[str, Any]:
     if not isinstance(section, Mapping):
         raise ValueError(f"config section {name!r} must be a mapping")
     return section
+
+
+def _int(value: Any, key: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or float(value) != int(value):
+        raise ValueError(f"{key} must be an integer, got {value!r}")
+    return int(value)
+
+
+def _float(value: Any, key: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{key} must be a number, got {value!r}")
+    return float(value)
