@@ -96,3 +96,98 @@ def _float(value: Any, key: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ValueError(f"{key} must be a number, got {value!r}")
     return float(value)
+
+
+def build_config(raw: Mapping[str, Any]) -> Config:
+    """Parse and validate a raw mapping into a :class:`Config`."""
+    gen = require_section(raw, "generator")
+    det = require_section(raw, "detector")
+    ev = require_section(raw, "evaluation")
+    anomaly_types = tuple(str(t) for t in gen.get("anomaly_types", ANOMALY_TYPES))
+    cfg = Config(
+        seed=_int(raw.get("seed", 0), "seed"),
+        generator=GeneratorConfig(
+            n_series=_int(gen.get("n_series", 12), "generator.n_series"),
+            length=_int(gen.get("length", 1500), "generator.length"),
+            period=_int(gen.get("period", 24), "generator.period"),
+            weekly_period=_int(gen.get("weekly_period", 168), "generator.weekly_period"),
+            trend_slope=_float(gen.get("trend_slope", 0.0006), "generator.trend_slope"),
+            noise_std=_float(gen.get("noise_std", 1.0), "generator.noise_std"),
+            ar_coefficient=_float(gen.get("ar_coefficient", 0.35), "generator.ar_coefficient"),
+            calibration_fraction=_float(
+                gen.get("calibration_fraction", 0.3), "generator.calibration_fraction"
+            ),
+            anomaly_rate=_float(gen.get("anomaly_rate", 0.05), "generator.anomaly_rate"),
+            anomaly_types=anomaly_types,
+            spike_magnitude=_float(gen.get("spike_magnitude", 6.0), "generator.spike_magnitude"),
+            level_shift_offset=_float(
+                gen.get("level_shift_offset", 3.0), "generator.level_shift_offset"
+            ),
+            variance_factor=_float(gen.get("variance_factor", 3.5), "generator.variance_factor"),
+            missing_value=_float(gen.get("missing_value", 0.0), "generator.missing_value"),
+        ),
+        detector=DetectorConfig(
+            zscore_window=_int(det.get("zscore_window", 48), "detector.zscore_window"),
+            zscore_threshold_sigma=_float(
+                det.get("zscore_threshold_sigma", 4.0), "detector.zscore_threshold_sigma"
+            ),
+            ewma_alpha=_float(det.get("ewma_alpha", 0.15), "detector.ewma_alpha"),
+            ewma_sigma=_float(det.get("ewma_sigma", 2.5), "detector.ewma_sigma"),
+            iforest_window=_int(det.get("iforest_window", 24), "detector.iforest_window"),
+            iforest_n_estimators=_int(
+                det.get("iforest_n_estimators", 120), "detector.iforest_n_estimators"
+            ),
+            iforest_random_state=_int(
+                det.get("iforest_random_state", 7), "detector.iforest_random_state"
+            ),
+            fp_budget=_float(det.get("fp_budget", 0.01), "detector.fp_budget"),
+            delay_window=_int(det.get("delay_window", 12), "detector.delay_window"),
+        ),
+        evaluation=EvaluationConfig(
+            precision_k=_int(ev.get("precision_k", 50), "evaluation.precision_k")
+        ),
+    )
+    validate_config(cfg)
+    return cfg
+
+
+def validate_config(cfg: Config) -> None:
+    """Collect every out-of-range value and raise once."""
+    problems: list[str] = []
+    g, d = cfg.generator, cfg.detector
+    if g.n_series < 1:
+        problems.append("generator.n_series must be >= 1")
+    if g.length < SERIES_MIN_LENGTH:
+        problems.append(f"generator.length must be >= {SERIES_MIN_LENGTH}")
+    if g.period < 2 or g.weekly_period < g.period:
+        problems.append("generator.period/weekly_period are inconsistent")
+    if not 0.0 < g.calibration_fraction < 0.8:
+        problems.append("generator.calibration_fraction must be in (0, 0.8)")
+    if not 0.0 < g.anomaly_rate < 0.5:
+        problems.append("generator.anomaly_rate must be in (0, 0.5)")
+    if not set(g.anomaly_types) <= set(ANOMALY_TYPES):
+        problems.append(f"generator.anomaly_types must be within {ANOMALY_TYPES}")
+    if g.noise_std <= 0:
+        problems.append("generator.noise_std must be positive")
+    if not 0.0 <= g.ar_coefficient < 0.95:
+        problems.append("generator.ar_coefficient must be in [0, 0.95)")
+    if g.spike_magnitude <= 0 or g.level_shift_offset == 0:
+        problems.append("anomaly magnitudes must be non-zero")
+    if g.variance_factor <= 1.0:
+        problems.append("generator.variance_factor must be > 1")
+    if d.zscore_window < 4:
+        problems.append("detector.zscore_window must be >= 4")
+    if d.zscore_threshold_sigma <= 0 or d.ewma_sigma <= 0:
+        problems.append("threshold sigmas must be positive")
+    if not 0.0 < d.ewma_alpha <= 1.0:
+        problems.append("detector.ewma_alpha must be in (0, 1]")
+    if d.iforest_window < 2 or d.iforest_n_estimators < 10:
+        problems.append("iforest window/estimator settings are too small")
+    if not 0.0 < d.fp_budget < 0.5:
+        problems.append("detector.fp_budget must be in (0, 0.5)")
+    if d.delay_window < 1:
+        problems.append("detector.delay_window must be >= 1")
+    if cfg.evaluation.precision_k < 1:
+        problems.append("evaluation.precision_k must be >= 1")
+    if problems:
+        raise ValueError("invalid config: " + "; ".join(problems))
