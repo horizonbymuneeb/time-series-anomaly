@@ -376,3 +376,4 @@
 [2026-01-22T16:18:19] WIP: debugging false positive rate spikes
 [2026-01-30T13:23:38] WIP: debugging false positive rate spikes
 [2026-01-30T17:43:53] Fix missing value handling in preprocessing
+[2026-02-02T15:10:26] Add Prophet-based anomaly detection pipeline
