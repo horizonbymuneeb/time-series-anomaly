@@ -191,3 +191,34 @@ def validate_config(cfg: Config) -> None:
         problems.append("evaluation.precision_k must be >= 1")
     if problems:
         raise ValueError("invalid config: " + "; ".join(problems))
+
+
+def load_config(
+    path: str | Path = DEFAULT_CONFIG_PATH, overrides: Mapping[str, Any] | None = None
+) -> Config:
+    """Load ``path`` and apply shallow per-section overrides (used by tests)."""
+    raw = read_yaml(path)
+    if overrides:
+        for section, values in overrides.items():
+            if section in raw and isinstance(raw[section], Mapping) and isinstance(values, Mapping):
+                raw[section] = {**raw[section], **values}
+            else:
+                raw[section] = values
+    return build_config(raw)
+
+
+def config_to_dict(cfg: Config) -> dict[str, Any]:
+    """YAML-ready dict form for logging the exact experiment settings."""
+    payload = asdict(cfg)
+    payload["generator"]["anomaly_types"] = list(cfg.generator.anomaly_types)
+    return payload
+
+
+def describe_config(cfg: Config) -> str:
+    """One-line summary printed by the CLI."""
+    g = cfg.generator
+    return (
+        f"series={g.n_series} length={g.length} period={g.period} "
+        f"calibration={g.calibration_fraction:.0%} anomaly_rate={g.anomaly_rate:.1%} "
+        f"fp_budget={cfg.detector.fp_budget:.1%}"
+    )
