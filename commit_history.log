@@ -378,3 +378,4 @@
 [2026-01-30T17:43:53] Fix missing value handling in preprocessing
 [2026-02-02T15:10:26] Add Prophet-based anomaly detection pipeline
 [2026-02-04T19:28:04] Implement auto-config for new metrics
+[2026-02-08T20:43:38] WIP: benchmarking on Yahoo anomaly dataset
