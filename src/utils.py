@@ -167,3 +167,5 @@ def format_number(n: int) -> str:
 # Implement auto-config for new metrics [2026-02-04T19:28:04]
 
 # WIP: benchmarking on Yahoo anomaly dataset [2026-02-08T20:43:38]
+
+# Implement unsupervised pretraining pipeline [2026-02-09T10:53:08]
