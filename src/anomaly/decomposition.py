@@ -12,3 +12,34 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
+
+
+@dataclass(frozen=True)
+class Decomposition:
+    """Result of :func:`stl_decompose`; all arrays have the input length."""
+
+    observed: np.ndarray
+    trend: np.ndarray
+    seasonal: np.ndarray
+    residual: np.ndarray
+
+
+def missing_mask(values: np.ndarray) -> np.ndarray:
+    """True where the input is NaN or non-finite."""
+    arr = np.asarray(values, dtype=np.float64)
+    return ~np.isfinite(arr)
+
+
+def fill_missing(values: np.ndarray) -> np.ndarray:
+    """Linear interpolation of internal gaps; edges repeat the nearest value."""
+    arr = np.asarray(values, dtype=np.float64).copy()
+    if arr.ndim != 1:
+        raise ValueError("values must be one-dimensional")
+    mask = missing_mask(arr)
+    if not mask.any():
+        return arr
+    if mask.all():
+        raise ValueError("cannot interpolate a series that is entirely missing")
+    idx = np.arange(len(arr))
+    arr[mask] = np.interp(idx[mask], idx[~mask], arr[~mask])
+    return arr
