@@ -381,3 +381,4 @@
 [2026-02-08T20:43:38] WIP: benchmarking on Yahoo anomaly dataset
 [2026-02-09T10:53:08] Implement unsupervised pretraining pipeline
 [2026-02-10T19:51:33] Add support for multi-variate time series
+[2026-02-10T11:30:47] Implement real-time streaming detection
