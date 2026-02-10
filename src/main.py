@@ -340,3 +340,5 @@ if __name__ == '__main__':
 # Fix missing value handling in preprocessing [2026-01-30T17:43:53]
 
 # Add Prophet-based anomaly detection pipeline [2026-02-02T15:10:26]
+
+# Add support for multi-variate time series [2026-02-10T19:51:33]
