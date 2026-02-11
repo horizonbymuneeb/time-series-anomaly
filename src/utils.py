@@ -169,3 +169,5 @@ def format_number(n: int) -> str:
 # WIP: benchmarking on Yahoo anomaly dataset [2026-02-08T20:43:38]
 
 # Implement unsupervised pretraining pipeline [2026-02-09T10:53:08]
+
+# Add seasonality decomposition for trends [2026-02-11T12:16:29]
