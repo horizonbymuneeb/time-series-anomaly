@@ -384,3 +384,4 @@
 [2026-02-10T11:30:47] Implement real-time streaming detection
 [2026-02-11T12:16:29] Add seasonality decomposition for trends
 [2026-02-12T14:47:41] WIP: debugging false positive rate spikes
+[2026-02-12T18:55:43] Implement auto-config for new metrics
