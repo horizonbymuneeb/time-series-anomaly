@@ -45,3 +45,45 @@ def test_trend_of_a_linear_ramp():
     assert np.allclose(trend[interior], ramp[interior], atol=0.5)
     with pytest.raises(ValueError):
         trend_component(ramp, 1)
+
+
+def test_seasonal_means_sum_to_zero_and_expand():
+    period = 24
+    t = np.arange(period * 6, dtype=float)
+    wave = 3.0 * np.sin(2 * np.pi * t / period)
+    means = seasonal_means(wave, period)
+    assert abs(means.sum()) < 1e-9
+    assert np.isclose(means.max(), 3.0, atol=0.05)
+    expanded = seasonal_component(wave, period)
+    assert expanded.shape == wave.shape
+    assert np.isclose(expanded[0], means[0])
+
+
+def test_decomposition_reconstructs_the_observed_series():
+    rng = np.random.default_rng(4)
+    t = np.arange(720, dtype=float)
+    observed = (
+        0.002 * t
+        + 2.0 * np.sin(2 * np.pi * t / 24)
+        + 1.0 * np.sin(2 * np.pi * t / 168)
+        + rng.normal(0, 0.3, size=len(t))
+    )
+    decomposition = stl_decompose(observed, period=24, iterations=2)
+    reconstructed = decomposition.trend + decomposition.seasonal + decomposition.residual
+    assert np.allclose(reconstructed, observed, atol=1e-9)
+    assert decomposition.observed.shape == observed.shape
+    assert seasonal_strength(decomposition) > 0.5
+    assert 0.0 <= trend_strength(decomposition) <= 1.0
+    with pytest.raises(ValueError):
+        stl_decompose(observed, 24, iterations=0)
+
+
+def test_robust_decomposition_ignores_a_spike():
+    t = np.arange(480, dtype=float)
+    observed = 2.0 * np.sin(2 * np.pi * t / 24)
+    spiked = observed.copy()
+    spiked[100:102] += 40.0
+    plain = stl_decompose(spiked, 24, robust=False)
+    robust = stl_decompose(spiked, 24, robust=True)
+    assert abs(plain.seasonal[100] - robust.seasonal[100]) >= 0.0
+    assert robust.residual[100] > 20.0
