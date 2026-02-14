@@ -87,3 +87,20 @@ def test_robust_decomposition_ignores_a_spike():
     robust = stl_decompose(spiked, 24, robust=True)
     assert abs(plain.seasonal[100] - robust.seasonal[100]) >= 0.0
     assert robust.residual[100] > 20.0
+
+
+def test_mad_scale_and_bisquare_weights():
+    assert mad_scale(np.array([1.0, 2.0, 3.0, 4.0, 100.0])) == pytest.approx(1.4826 * 1.0)
+    with pytest.raises(ValueError):
+        mad_scale(np.array([np.nan]))
+    weights = bisquare_weights(np.array([0.0, 1.0, 100.0]))
+    assert np.isclose(weights[0], 1.0)
+    assert weights[-1] < 0.01
+    assert ((weights >= 0) & (weights <= 1)).all()
+
+
+def test_residual_scores_are_positive_and_scale_free():
+    scores = residual_scores(np.arange(240, dtype=float) % 24, period=24)
+    assert scores.shape == (240,)
+    assert (scores >= 0).all()
+    assert np.isfinite(scores).all()

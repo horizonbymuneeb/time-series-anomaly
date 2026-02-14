@@ -73,3 +73,23 @@ def trend_component(values: np.ndarray, period: int, robust: bool = False) -> np
             centered_moving_average(weights, window), 1e-12
         )
     return trend
+
+
+def seasonal_means(detrended: np.ndarray, period: int) -> np.ndarray:
+    """Average detrended value per seasonal phase, centred to sum to zero."""
+    if period < 2:
+        raise ValueError("period must be >= 2")
+    arr = np.asarray(detrended, dtype=np.float64)
+    sums = np.zeros(period, dtype=np.float64)
+    counts = np.zeros(period, dtype=np.float64)
+    for phase in range(period):
+        block = arr[phase::period]
+        sums[phase] = np.nansum(block)
+        counts[phase] = np.isfinite(block).sum()
+    means = sums / np.maximum(counts, 1)
+    return means - means.mean()
+
+
+def seasonal_component(detrended: np.ndarray, period: int) -> np.ndarray:
+    """Expand phase means back to the full length."""
+    return np.resize(seasonal_means(detrended, period), len(detrended))
