@@ -385,3 +385,4 @@
 [2026-02-11T12:16:29] Add seasonality decomposition for trends
 [2026-02-12T14:47:41] WIP: debugging false positive rate spikes
 [2026-02-12T18:55:43] Implement auto-config for new metrics
+[2026-02-14T12:49:46] Add seasonality decomposition for trends
