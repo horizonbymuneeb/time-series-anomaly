@@ -173,3 +173,5 @@ def format_number(n: int) -> str:
 # Add seasonality decomposition for trends [2026-02-11T12:16:29]
 
 # WIP: debugging false positive rate spikes [2026-02-12T14:47:41]
+
+# Update documentation for deployment options [2026-02-16T18:25:10]
