@@ -93,3 +93,28 @@ def seasonal_means(detrended: np.ndarray, period: int) -> np.ndarray:
 def seasonal_component(detrended: np.ndarray, period: int) -> np.ndarray:
     """Expand phase means back to the full length."""
     return np.resize(seasonal_means(detrended, period), len(detrended))
+
+
+def stl_decompose(values: np.ndarray, period: int, iterations: int = 2, robust: bool = False) -> Decomposition:
+    """Iterative additive decomposition: observed = trend + seasonal + residual."""
+    if iterations < 1:
+        raise ValueError("iterations must be >= 1")
+    observed = fill_missing(values)
+    trend = trend_component(observed, period, robust=robust)
+    seasonal = np.zeros_like(observed)
+    for _ in range(iterations):
+        detrended = observed - trend
+        seasonal = seasonal_component(detrended, period)
+        trend = trend_component(observed - seasonal, period, robust=robust)
+    residual = observed - trend - seasonal
+    return Decomposition(observed=observed, trend=trend, seasonal=seasonal, residual=residual)
+
+
+def mad_scale(values: np.ndarray) -> float:
+    """Robust scale estimate: 1.4826 * median absolute deviation."""
+    arr = np.asarray(values, dtype=np.float64)
+    finite = arr[np.isfinite(arr)]
+    if finite.size == 0:
+        raise ValueError("no finite values")
+    median = np.median(finite)
+    return float(1.4826 * np.median(np.abs(finite - median)))
