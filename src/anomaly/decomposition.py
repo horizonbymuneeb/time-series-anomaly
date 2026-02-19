@@ -118,3 +118,29 @@ def mad_scale(values: np.ndarray) -> float:
         raise ValueError("no finite values")
     median = np.median(finite)
     return float(1.4826 * np.median(np.abs(finite - median)))
+
+
+def bisquare_weights(residual: np.ndarray, cutoff: float = 6.0) -> np.ndarray:
+    """Tukey bisquare weights in [0, 1]; large residuals shrink to zero."""
+    arr = np.asarray(residual, dtype=np.float64)
+    scale = mad_scale(arr)
+    if scale <= 0:
+        return np.ones_like(arr)
+    u = np.clip(np.abs(arr) / (cutoff * scale), 0.0, 1.0)
+    return (1.0 - u**2) ** 2
+
+
+def seasonal_strength(decomposition: Decomposition) -> float:
+    """Variance of the seasonal term relative to seasonal + residual."""
+    residual_var = float(np.var(decomposition.residual))
+    seasonal_var = float(np.var(decomposition.seasonal))
+    total = seasonal_var + residual_var
+    return 0.0 if total <= 0 else max(0.0, 1.0 - residual_var / total)
+
+
+def trend_strength(decomposition: Decomposition) -> float:
+    """Variance of the trend relative to trend + residual."""
+    residual_var = float(np.var(decomposition.residual))
+    trend_var = float(np.var(decomposition.trend))
+    total = trend_var + residual_var
+    return 0.0 if total <= 0 else max(0.0, 1.0 - residual_var / total)
