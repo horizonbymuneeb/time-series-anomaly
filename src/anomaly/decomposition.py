@@ -144,3 +144,12 @@ def trend_strength(decomposition: Decomposition) -> float:
     trend_var = float(np.var(decomposition.trend))
     total = trend_var + residual_var
     return 0.0 if total <= 0 else max(0.0, 1.0 - residual_var / total)
+
+
+def residual_scores(values: np.ndarray, period: int = 24) -> np.ndarray:
+    """Residual magnitude as an anomaly score, normalised by the robust scale."""
+    decomposition = stl_decompose(values, period)
+    scale = mad_scale(decomposition.residual)
+    if scale <= 0:
+        return np.abs(decomposition.residual)
+    return np.abs(decomposition.residual) / scale
