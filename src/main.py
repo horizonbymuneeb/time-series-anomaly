@@ -354,3 +354,5 @@ if __name__ == '__main__':
 # Add causal impact analysis for events [2026-02-19T19:07:54]
 
 # Fix sliding window edge case handling [2026-02-23T16:20:41]
+
+# Add support for multi-variate time series [2026-02-23T10:21:57]
