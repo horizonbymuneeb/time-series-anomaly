@@ -177,3 +177,5 @@ def format_number(n: int) -> str:
 # Update documentation for deployment options [2026-02-16T18:25:10]
 
 # Add seasonality decomposition for trends [2026-02-21T17:10:00]
+
+# WIP: benchmarking on Yahoo anomaly dataset [2026-02-24T09:39:20]
