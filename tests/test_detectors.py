@@ -29,3 +29,49 @@ from src.anomaly.detectors_base import (
 )
 from src.anomaly.decomposition import fill_missing
 from src.anomaly.pipeline import run_series
+
+
+def test_detection_result_contract():
+    scores = np.array([0.0, 5.0, 1.0, 9.0])
+    result = make_result("toy", scores, np.array([0.0, 1.0, 0.5]), 0.2)
+    assert isinstance(result, DetectionResult)
+    assert result.mask.shape == scores.shape
+    assert result.flagged == int(result.mask.sum())
+    assert scores_to_mask(scores, 4.0).tolist() == [False, True, False, True]
+    summary = summarize_result(result)
+    assert summary["flagged"] == result.flagged
+
+
+def test_calibration_threshold_uses_quantile_and_guards_short_windows():
+    clean = np.arange(100, dtype=float)
+    threshold = calibrate_threshold(clean, 0.1)
+    assert threshold == pytest.approx(np.quantile(clean, 0.9))
+    assert calibrate_threshold(np.array([3.0]), 0.01) == 3.0
+    with pytest.raises(ValueError):
+        calibrate_threshold(clean, 1.0)
+    with pytest.raises(ValueError):
+        calibrate_threshold(np.array([]), 0.1)
+    assert np.allclose(sanitize_scores(np.array([np.nan, np.inf, -np.inf, 2.0])), [0, 0, 0, 2])
+    with pytest.raises(ValueError):
+        validate_series(np.zeros((2, 2)))
+
+
+def test_rolling_zscore_is_causal_and_flags_a_spike(tiny_dataset):
+    z = rolling_zscore(np.array([1.0, 1.0, 1.0, 10.0, 1.0]), 3)
+    assert z.shape == (5,)
+    assert z[3] > z[0]
+    assert z[3] > 5.0
+    means, stds = trailing_mean_std(np.array([0.0, 2.0, 2.0]), 2)
+    assert means[2] == pytest.approx(1.0)
+    assert stds[2] == pytest.approx(1.0)
+
+    series = tiny_dataset[0]
+    result = detect_rolling_zscore(
+        fill_missing(series.values), fill_missing(series.calibration_values),
+        __import__("src.anomaly.config", fromlist=["DetectorConfig"]).DetectorConfig(fp_budget=0.02),
+    )
+    assert result.scores.shape == series.values.shape
+    assert result.mask.dtype == bool
+    assert result.threshold == pytest.approx(
+        calibrate_threshold(rolling_zscore(fill_missing(series.calibration_values), 48), 0.02)
+    )
