@@ -179,3 +179,5 @@ def format_number(n: int) -> str:
 # Add seasonality decomposition for trends [2026-02-21T17:10:00]
 
 # WIP: benchmarking on Yahoo anomaly dataset [2026-02-24T09:39:20]
+
+# Implement real-time streaming detection [2026-03-03T12:35:16]
