@@ -394,3 +394,4 @@
 [2026-02-23T10:21:57] Add support for multi-variate time series
 [2026-02-24T09:39:20] WIP: benchmarking on Yahoo anomaly dataset
 [2026-02-27T13:35:51] Implement ensemble of multiple detectors
+[2026-03-03T20:19:23] Update documentation for deployment options

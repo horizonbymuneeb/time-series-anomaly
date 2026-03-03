@@ -358,3 +358,5 @@ if __name__ == '__main__':
 # Add support for multi-variate time series [2026-02-23T10:21:57]
 
 # Implement ensemble of multiple detectors [2026-02-27T13:35:51]
+
+# Update documentation for deployment options [2026-03-03T20:19:23]
