@@ -75,3 +75,50 @@ def test_rolling_zscore_is_causal_and_flags_a_spike(tiny_dataset):
     assert result.threshold == pytest.approx(
         calibrate_threshold(rolling_zscore(fill_missing(series.calibration_values), 48), 0.02)
     )
+
+
+def test_ewma_smooths_and_control_band_formula():
+    smooth = ewma(np.array([0.0, 10.0, 10.0]), alpha=0.5)
+    assert smooth[1] == pytest.approx(5.0)
+    assert smooth[2] == pytest.approx(7.5)
+    with pytest.raises(ValueError):
+        ewma(np.arange(5.0), 1.5)
+
+    clean = np.linspace(0.0, 1.0, 200)
+    sigma, band = control_band(clean, 0.2)
+    assert sigma > 0 and band == pytest.approx(sigma * np.sqrt(0.2 / 1.8))
+    assert ewma_center(np.array([1.0, 2.0, 100.0])) == 2.0
+    scores = ewma_scores(np.arange(10.0), center=0.0, alpha=0.3, scale=max(sigma, 1e-6))
+    assert (scores >= 0).all()
+    with pytest.raises(ValueError):
+        ewma_scores(np.arange(10.0), 0.0, 0.3, 0.0)
+
+
+def test_ewma_detector_flags_a_level_shift(tiny_config, tiny_dataset):
+    from src.anomaly.generator import inject_level_shift
+
+    series = tiny_dataset[0]
+    clean = fill_missing(series.clean)
+    shifted_values = inject_level_shift(clean, 300, 40, 6.0, np.random.default_rng(0))
+    calibration = fill_missing(series.calibration_values)
+    result = detect_ewma(shifted_values, calibration, tiny_config.detector)
+    assert len(result.mask) == series.length
+    assert result.threshold > 0
+    assert result.mask[300:340].any()
+    assert result.flagged > 0
+
+
+def test_isolation_forest_windows_and_alignment():
+    matrix = sliding_windows(np.arange(20, dtype=float), 5)
+    assert matrix.shape == (16, 5)
+    assert np.allclose(matrix[0], np.arange(5))
+    assert np.allclose(matrix[-1], np.arange(15, 20))
+    scores = np.array([1.0, 2.0, 3.0, 4.0])
+    aligned = align_window_scores(scores, 5, 8)
+    assert aligned.shape == (8,)
+    assert np.allclose(aligned[4:], scores)
+    assert aligned[0] == scores[0]
+    with pytest.raises(ValueError):
+        sliding_windows(np.arange(3.0), 5)
+    with pytest.raises(ValueError):
+        align_window_scores(scores, 5, 20)

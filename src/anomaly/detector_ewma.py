@@ -23,3 +23,22 @@ def ewma(values: np.ndarray, alpha: float) -> np.ndarray:
     for i in range(1, len(arr)):
         out[i] = alpha * arr[i] + (1.0 - alpha) * out[i - 1]
     return out
+
+
+def ewma_center(values: np.ndarray) -> float:
+    """Robust central level of a clean calibration window."""
+    arr = fill_missing(values)
+    return float(np.median(arr))
+
+
+def control_band(values: np.ndarray, alpha: float) -> tuple[float, float]:
+    """Classic EWMA control-band width around the mean of the input window.
+
+    ``sigma_z = sigma * sqrt(alpha / (2 - alpha))`` is the asymptotic standard
+    deviation of the EWMA statistic; the returned half-width uses the robust
+    MAD scale instead of the plain standard deviation.
+    """
+    arr = fill_missing(values)
+    sigma = mad_scale(arr)
+    band = sigma * np.sqrt(alpha / (2.0 - alpha))
+    return sigma, float(band)
