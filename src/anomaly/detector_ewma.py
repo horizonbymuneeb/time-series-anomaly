@@ -42,3 +42,24 @@ def control_band(values: np.ndarray, alpha: float) -> tuple[float, float]:
     sigma = mad_scale(arr)
     band = sigma * np.sqrt(alpha / (2.0 - alpha))
     return sigma, float(band)
+
+
+def ewma_scores(values: np.ndarray, center: float, alpha: float, scale: float) -> np.ndarray:
+    """Absolute deviation of the EWMA level from ``center``, in scale units."""
+    if scale <= 0:
+        raise ValueError("scale must be positive")
+    return np.abs(ewma(values, alpha) - center) / scale
+
+
+def detect_ewma(
+    values: np.ndarray, calibration_values: np.ndarray, cfg: DetectorConfig
+) -> DetectionResult:
+    """Score with EWMA and calibrate the threshold on the clean prefix."""
+    arr = validate_series(values)
+    calib = validate_series(calibration_values, "calibration_values")
+    center = ewma_center(calib)
+    sigma = mad_scale(calib)
+    scale = max(sigma, 1e-6)
+    scores = ewma_scores(arr, center, cfg.ewma_alpha, scale)
+    calib_scores = sanitize_scores(ewma_scores(calib, center, cfg.ewma_alpha, scale))
+    return make_result("ewma", scores, calib_scores, cfg.fp_budget)
