@@ -396,3 +396,4 @@
 [2026-02-27T13:35:51] Implement ensemble of multiple detectors
 [2026-03-03T20:19:23] Update documentation for deployment options
 [2026-03-03T12:35:16] Implement real-time streaming detection
+[2026-03-05T11:33:45] Update isolation forest implementation
