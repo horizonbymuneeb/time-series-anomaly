@@ -122,3 +122,29 @@ def test_isolation_forest_windows_and_alignment():
         sliding_windows(np.arange(3.0), 5)
     with pytest.raises(ValueError):
         align_window_scores(scores, 5, 20)
+
+
+def test_isolation_forest_detector(tiny_config, tiny_dataset):
+    from src.anomaly.config import DetectorConfig
+
+    cfg = DetectorConfig(iforest_window=12, iforest_n_estimators=40, iforest_random_state=3, fp_budget=0.02)
+    series = tiny_dataset[0]
+    values = fill_missing(series.values)
+    calibration = fill_missing(series.calibration_values)
+    model = fit_iforest(sliding_windows(calibration, cfg.iforest_window), cfg)
+    raw = iforest_raw_scores(model, sliding_windows(values, cfg.iforest_window))
+    assert raw.shape[0] == len(values) - cfg.iforest_window + 1
+    result = detect_isolation_forest(values, calibration, cfg)
+    assert result.scores.shape == values.shape
+    assert 0 < result.flagged < len(values)
+    with pytest.raises(ValueError):
+        fit_iforest(np.zeros((5, 12)), cfg)
+
+
+def test_every_detector_runs_through_the_registry(tiny_config, tiny_dataset):
+    results = run_series(tiny_dataset[1], tiny_config)
+    assert set(results) == {"rolling_zscore", "ewma", "isolation_forest"}
+    for result in results.values():
+        assert result.scores.shape == tiny_dataset[1].values.shape
+        assert result.mask.shape == tiny_dataset[1].values.shape
+        assert np.isnan(result.scores).sum() == 0
