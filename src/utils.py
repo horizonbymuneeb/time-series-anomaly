@@ -187,3 +187,5 @@ def format_number(n: int) -> str:
 # Implement ensemble of multiple detectors [2026-03-09T12:52:17]
 
 # WIP: benchmarking on Yahoo anomaly dataset [2026-03-10T15:50:33]
+
+# Add alerting integration with PagerDuty API [2026-03-11T15:22:02]
