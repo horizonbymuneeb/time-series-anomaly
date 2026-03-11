@@ -49,3 +49,26 @@ def fit_iforest(matrix: np.ndarray, cfg: DetectorConfig) -> IsolationForest:
     )
     model.fit(matrix)
     return model
+
+
+def iforest_raw_scores(model: IsolationForest, matrix: np.ndarray) -> np.ndarray:
+    """Higher means more anomalous: negate the model's decision function."""
+    return -model.decision_function(matrix)
+
+
+def detect_isolation_forest(
+    values: np.ndarray, calibration_values: np.ndarray, cfg: DetectorConfig
+) -> DetectionResult:
+    """Fit on the clean prefix, score the whole series, calibrate the threshold."""
+    arr = validate_series(values)
+    calib = validate_series(calibration_values, "calibration_values")
+    window = cfg.iforest_window
+    if len(calib) <= window + 10:
+        raise ValueError("calibration window is too short for the isolation forest")
+    model = fit_iforest(sliding_windows(calib, window), cfg)
+    matrix = sliding_windows(arr, window)
+    raw = iforest_raw_scores(model, matrix)
+    calibration_raw = iforest_raw_scores(model, sliding_windows(calib, window))
+    align_calibration = align_window_scores(calibration_raw, window, len(calib))
+    scores = align_window_scores(raw, window, len(arr))
+    return make_result("isolation_forest", scores, align_calibration, cfg.fp_budget)
