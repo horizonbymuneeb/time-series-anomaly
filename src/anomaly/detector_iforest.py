@@ -24,3 +24,28 @@ def sliding_windows(values: np.ndarray, window: int) -> np.ndarray:
         raise ValueError("series shorter than the window")
     matrix = np.lib.stride_tricks.sliding_window_view(arr, window)
     return np.ascontiguousarray(matrix, dtype=np.float64)
+
+
+def align_window_scores(window_scores: np.ndarray, window: int, length: int) -> np.ndarray:
+    """Map one score per window onto the timestamp at the window's end."""
+    scores = np.asarray(window_scores, dtype=np.float64)
+    if len(scores) != length - window + 1:
+        raise ValueError("window score count does not match the series length")
+    out = np.empty(length, dtype=np.float64)
+    out[window - 1 :] = scores
+    out[: window - 1] = scores[0] if len(scores) else 0.0
+    return out
+
+
+def fit_iforest(matrix: np.ndarray, cfg: DetectorConfig) -> IsolationForest:
+    """Fit an isolation forest on calibration windows."""
+    if matrix.shape[0] < 10:
+        raise ValueError("need at least ten calibration windows")
+    model = IsolationForest(
+        n_estimators=cfg.iforest_n_estimators,
+        contamination="auto",
+        random_state=cfg.iforest_random_state,
+        n_jobs=1,
+    )
+    model.fit(matrix)
+    return model
