@@ -189,3 +189,5 @@ def format_number(n: int) -> str:
 # WIP: benchmarking on Yahoo anomaly dataset [2026-03-10T15:50:33]
 
 # Add alerting integration with PagerDuty API [2026-03-11T15:22:02]
+
+# Add Prophet-based anomaly detection pipeline [2026-03-11T17:16:13]
