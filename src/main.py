@@ -362,3 +362,5 @@ if __name__ == '__main__':
 # Update documentation for deployment options [2026-03-03T20:19:23]
 
 # WIP: benchmarking on Yahoo anomaly dataset [2026-03-09T11:52:17]
+
+# Add alerting integration with PagerDuty API [2026-03-11T13:46:45]
