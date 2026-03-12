@@ -364,3 +364,5 @@ if __name__ == '__main__':
 # WIP: benchmarking on Yahoo anomaly dataset [2026-03-09T11:52:17]
 
 # Add alerting integration with PagerDuty API [2026-03-11T13:46:45]
+
+# Add support for multi-variate time series [2026-03-12T19:59:18]
