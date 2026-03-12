@@ -17,3 +17,5 @@ from src.anomaly.evaluation import (
     region_recall,
     threshold_at_fp_budget,
 )
+
+LABELS = np.array([0, 1, 1, 0, 0, 1, 0, 0])
