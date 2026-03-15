@@ -35,3 +35,34 @@ def trailing_mean_std(values: np.ndarray, window: int) -> tuple[np.ndarray, np.n
         means[i] = float(np.mean(block))
         stds[i] = float(np.std(block))
     return means, stds
+
+
+def rolling_zscore(values: np.ndarray, window: int, floor: float = 1e-6) -> np.ndarray:
+    """Absolute, causal z-score of every point against its trailing window."""
+    arr = validate_series(values)
+    if floor <= 0:
+        raise ValueError("floor must be positive")
+    means, stds = trailing_mean_std(arr, window)
+    return np.abs(arr - means) / np.maximum(stds, floor)
+
+
+def detect_rolling_zscore(
+    values: np.ndarray, calibration_values: np.ndarray, cfg: DetectorConfig
+) -> DetectionResult:
+    """Score the series and calibrate the threshold on its clean prefix."""
+    arr = validate_series(values)
+    calib = validate_series(calibration_values, "calibration_values")
+    scores = rolling_zscore(arr, cfg.zscore_window)
+    calib_scores = rolling_zscore(calib, cfg.zscore_window)
+    return make_result("rolling_zscore", scores, calib_scores, cfg.fp_budget)
+
+
+def score_summary(scores: np.ndarray) -> dict[str, float]:
+    """Distribution summary used in the report."""
+    arr = np.asarray(scores, dtype=np.float64)
+    return {
+        "mean": float(np.mean(arr)),
+        "median": float(np.median(arr)),
+        "p99": float(np.quantile(arr, 0.99)),
+        "max": float(np.max(arr)),
+    }
