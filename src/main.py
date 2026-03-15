@@ -368,3 +368,5 @@ if __name__ == '__main__':
 # Add support for multi-variate time series [2026-03-12T19:59:18]
 
 # Fix sliding window edge case handling [2026-03-13T18:23:54]
+
+# Implement auto-config for new metrics [2026-03-15T11:36:15]
