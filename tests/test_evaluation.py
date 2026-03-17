@@ -19,3 +19,4 @@ from src.anomaly.evaluation import (
 )
 
 LABELS = np.array([0, 1, 1, 0, 0, 1, 0, 0])
+MASK = np.array([0, 0, 1, 0, 0, 1, 0, 0])
