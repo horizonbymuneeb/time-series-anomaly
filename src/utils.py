@@ -193,3 +193,5 @@ def format_number(n: int) -> str:
 # Add Prophet-based anomaly detection pipeline [2026-03-11T17:16:13]
 
 # Implement unsupervised pretraining pipeline [2026-03-16T14:50:23]
+
+# Implement auto-config for new metrics [2026-03-17T17:10:56]
