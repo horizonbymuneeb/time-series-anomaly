@@ -370,3 +370,5 @@ if __name__ == '__main__':
 # Fix sliding window edge case handling [2026-03-13T18:23:54]
 
 # Implement auto-config for new metrics [2026-03-15T11:36:15]
+
+# Fix missing value handling in preprocessing [2026-03-18T20:31:56]
