@@ -41,3 +41,25 @@ def validate_series(values: np.ndarray, name: str = "values") -> np.ndarray:
     if arr.size == 0:
         raise ValueError(f"{name} must not be empty")
     return arr
+
+
+def sanitize_scores(scores: np.ndarray) -> np.ndarray:
+    """Replace non-finite scores with zero so comparisons stay defined."""
+    arr = np.asarray(scores, dtype=np.float64)
+    return np.nan_to_num(arr, nan=0.0, posinf=0.0, neginf=0.0)
+
+
+def calibrate_threshold(clean_scores: np.ndarray, fp_budget: float) -> float:
+    """Threshold at the ``1 - fp_budget`` quantile of clean-window scores.
+
+    If the clean window is too short to resolve the requested budget, the
+    maximum clean score is used, which is the conservative choice.
+    """
+    if not 0.0 < fp_budget < 1.0:
+        raise ValueError("fp_budget must be in (0, 1)")
+    scores = sanitize_scores(clean_scores)
+    if scores.size == 0:
+        raise ValueError("calibration scores are empty")
+    if fp_budget * scores.size < 1.0:
+        return float(np.max(scores))
+    return float(np.quantile(scores, 1.0 - fp_budget))
