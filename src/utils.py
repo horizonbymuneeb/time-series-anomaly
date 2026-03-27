@@ -199,3 +199,5 @@ def format_number(n: int) -> str:
 # Implement auto-config for new metrics [2026-03-19T16:15:57]
 
 # Implement LSTM autoencoder for anomaly detection [2026-03-19T09:32:15]
+
+# Add support for multi-variate time series [2026-03-27T12:36:53]

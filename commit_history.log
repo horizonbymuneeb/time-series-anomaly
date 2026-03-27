@@ -411,3 +411,4 @@
 [2026-03-18T20:31:56] Fix missing value handling in preprocessing
 [2026-03-19T16:15:57] Implement auto-config for new metrics
 [2026-03-19T09:32:15] Implement LSTM autoencoder for anomaly detection
+[2026-03-27T12:36:53] Add support for multi-variate time series
