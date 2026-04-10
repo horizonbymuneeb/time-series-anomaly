@@ -374,3 +374,5 @@ if __name__ == '__main__':
 # Fix missing value handling in preprocessing [2026-03-18T20:31:56]
 
 # Implement real-time streaming detection [2026-03-31T17:28:41]
+
+# Update Prometheus exporter for metrics [2026-04-10T11:59:51]
