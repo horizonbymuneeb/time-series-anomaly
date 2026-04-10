@@ -63,3 +63,35 @@ def calibrate_threshold(clean_scores: np.ndarray, fp_budget: float) -> float:
     if fp_budget * scores.size < 1.0:
         return float(np.max(scores))
     return float(np.quantile(scores, 1.0 - fp_budget))
+
+
+def scores_to_mask(scores: np.ndarray, threshold: float) -> np.ndarray:
+    """Flag points strictly above the threshold."""
+    return sanitize_scores(scores) > float(threshold)
+
+
+def make_result(
+    name: str, scores: np.ndarray, clean_scores: np.ndarray, fp_budget: float
+) -> DetectionResult:
+    """Build a :class:`DetectionResult` from scores and the clean calibration set."""
+    scores = sanitize_scores(scores)
+    if len(clean_scores) and len(scores) != len(clean_scores) and len(clean_scores) > len(scores):
+        raise ValueError("calibration scores cannot be longer than the scored series")
+    threshold = calibrate_threshold(clean_scores, fp_budget)
+    return DetectionResult(
+        name=name,
+        scores=scores,
+        mask=scores_to_mask(scores, threshold),
+        threshold=threshold,
+        fp_budget=fp_budget,
+    )
+
+
+def summarize_result(result: DetectionResult) -> dict[str, float]:
+    """Compact per-detector summary for logs."""
+    return {
+        "flagged": float(result.flagged),
+        "flagged_rate": float(result.flagged / len(result.mask)),
+        "threshold": float(result.threshold),
+        "score_mean": result.score_mean,
+    }
