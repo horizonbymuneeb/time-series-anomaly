@@ -203,3 +203,5 @@ def format_number(n: int) -> str:
 # Add support for multi-variate time series [2026-03-27T12:36:53]
 
 # Implement root cause analysis correlation [2026-04-12T12:48:16]
+
+# Add causal impact analysis for events [2026-04-12T16:50:32]
