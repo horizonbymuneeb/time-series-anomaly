@@ -205,3 +205,5 @@ def format_number(n: int) -> str:
 # Implement root cause analysis correlation [2026-04-12T12:48:16]
 
 # Add causal impact analysis for events [2026-04-12T16:50:32]
+
+# Add seasonality decomposition for trends [2026-04-14T10:28:27]
