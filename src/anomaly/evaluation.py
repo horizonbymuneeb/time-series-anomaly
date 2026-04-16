@@ -37,3 +37,28 @@ def contiguous_regions(labels: np.ndarray) -> list[tuple[int, int]]:
     if start is not None:
         regions.append((start, len(y)))
     return regions
+
+
+def point_precision_recall(labels: np.ndarray, mask: np.ndarray) -> dict[str, float]:
+    """Point-level precision, recall and F1."""
+    y, predicted = validate_labels(labels, mask)
+    tp = int((y & predicted).sum())
+    fp = int((~y & predicted).sum())
+    fn = int((y & ~predicted).sum())
+    precision = tp / (tp + fp) if tp + fp else 0.0
+    recall = tp / (tp + fn) if tp + fn else 0.0
+    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+    return {"precision": precision, "recall": recall, "f1": f1, "tp": float(tp), "fp": float(fp), "fn": float(fn)}
+
+
+def precision_at_k(labels: np.ndarray, scores: np.ndarray, k: int) -> float:
+    """Fraction of the k highest-scoring points that are labelled anomalous."""
+    y = np.asarray(labels).astype(bool)
+    s = np.asarray(scores, dtype=np.float64)
+    if len(y) != len(s):
+        raise ValueError("labels and scores must have the same length")
+    if k < 1:
+        raise ValueError("k must be >= 1")
+    k = min(k, len(y))
+    top = np.argsort(-s, kind="mergesort")[:k]
+    return float(y[top].mean())
