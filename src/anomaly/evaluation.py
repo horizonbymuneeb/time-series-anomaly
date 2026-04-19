@@ -62,3 +62,54 @@ def precision_at_k(labels: np.ndarray, scores: np.ndarray, k: int) -> float:
     k = min(k, len(y))
     top = np.argsort(-s, kind="mergesort")[:k]
     return float(y[top].mean())
+
+
+def threshold_at_fp_budget(labels: np.ndarray, scores: np.ndarray, fp_budget: float) -> float:
+    """Lowest threshold whose flagged points stay within the FP budget.
+
+    The budget is a fraction of all points (not of negatives), matching how alert
+    volume is planned in practice.
+    """
+    y, _ = validate_labels(labels, np.zeros_like(np.asarray(labels)))
+    s = np.asarray(scores, dtype=np.float64)
+    if not 0.0 < fp_budget < 0.5:
+        raise ValueError("fp_budget must be in (0, 0.5)")
+    allowed = max(1, int(round(fp_budget * len(y))))
+    order = np.argsort(-s, kind="mergesort")
+    sorted_scores = s[order]
+    sorted_labels = y[order]
+    threshold = float(np.nextafter(sorted_scores.max(), np.inf))
+    seen_fp = 0
+    for score, label in zip(sorted_scores, sorted_labels):
+        next_fp = seen_fp + (0 if label else 1)
+        if next_fp > allowed:
+            break
+        threshold = float(score)
+        seen_fp = next_fp
+    return threshold
+
+
+def recall_at_fp_budget(labels: np.ndarray, scores: np.ndarray, fp_budget: float) -> dict[str, float]:
+    """Recall and precision achievable while respecting ``fp_budget``."""
+    y, _ = validate_labels(labels, np.zeros_like(np.asarray(labels)))
+    threshold = threshold_at_fp_budget(y, scores, fp_budget)
+    flagged = np.asarray(scores) >= threshold
+    tp = int((flagged & y).sum())
+    fp = int((flagged & ~y).sum())
+    positives = int(y.sum())
+    return {
+        "threshold": threshold,
+        "recall": float(tp / positives) if positives else 0.0,
+        "precision": float(tp / max(tp + fp, 1)),
+        "false_positives": fp,
+    }
+
+
+def region_recall(labels: np.ndarray, mask: np.ndarray) -> float:
+    """Share of ground-truth anomaly events with at least one flagged point."""
+    y, predicted = validate_labels(labels, mask)
+    regions = contiguous_regions(y)
+    if not regions:
+        return 0.0
+    detected = sum(1 for start, end in regions if predicted[start:end].any())
+    return float(detected / len(regions))
