@@ -420,3 +420,4 @@
 [2026-04-14T10:28:27] Add seasonality decomposition for trends
 [2026-04-16T11:48:32] Add seasonality decomposition for trends
 [2026-04-17T10:32:49] Fix missing value handling in preprocessing
+[2026-04-19T15:36:39] Implement auto-config for new metrics

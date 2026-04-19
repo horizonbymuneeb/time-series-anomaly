@@ -380,3 +380,5 @@ if __name__ == '__main__':
 # Fix missing value handling in preprocessing [2026-04-11T16:38:15]
 
 # Fix missing value handling in preprocessing [2026-04-17T10:32:49]
+
+# Implement auto-config for new metrics [2026-04-19T15:36:39]
