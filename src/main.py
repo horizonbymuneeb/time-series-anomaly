@@ -382,3 +382,5 @@ if __name__ == '__main__':
 # Fix missing value handling in preprocessing [2026-04-17T10:32:49]
 
 # Implement auto-config for new metrics [2026-04-19T15:36:39]
+
+# Update Prometheus exporter for metrics [2026-04-24T10:09:55]
