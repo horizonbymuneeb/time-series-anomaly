@@ -113,3 +113,22 @@ def region_recall(labels: np.ndarray, mask: np.ndarray) -> float:
         return 0.0
     detected = sum(1 for start, end in regions if predicted[start:end].any())
     return float(detected / len(regions))
+
+
+def detection_delays(labels: np.ndarray, mask: np.ndarray, max_delay: int) -> list[int]:
+    """Points between each event start and its first detection (-1 if missed)."""
+    y, predicted = validate_labels(labels, mask)
+    if max_delay < 1:
+        raise ValueError("max_delay must be >= 1")
+    delays: list[int] = []
+    for start, end in contiguous_regions(y):
+        window_end = min(len(predicted), end + max_delay)
+        hits = np.flatnonzero(predicted[start:window_end])
+        delays.append(int(hits[0]) if hits.size else -1)
+    return delays
+
+
+def mean_delay(delays: list[int]) -> float:
+    """Average delay over detected events; NaN when nothing was detected."""
+    detected = [d for d in delays if d >= 0]
+    return float(np.mean(detected)) if detected else float("nan")
