@@ -384,3 +384,5 @@ if __name__ == '__main__':
 # Implement auto-config for new metrics [2026-04-19T15:36:39]
 
 # Update Prometheus exporter for metrics [2026-04-24T10:09:55]
+
+# Update documentation for deployment options [2026-04-24T12:55:29]
