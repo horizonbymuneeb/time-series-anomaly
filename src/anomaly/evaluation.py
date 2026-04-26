@@ -132,3 +132,38 @@ def mean_delay(delays: list[int]) -> float:
     """Average delay over detected events; NaN when nothing was detected."""
     detected = [d for d in delays if d >= 0]
     return float(np.mean(detected)) if detected else float("nan")
+
+
+def evaluate_detector(
+    labels: np.ndarray,
+    scores: np.ndarray,
+    mask: np.ndarray,
+    precision_k: int,
+    max_delay: int,
+) -> dict[str, float]:
+    """All metrics for one detector on one series."""
+    point = point_precision_recall(labels, mask)
+    delays = detection_delays(labels, mask, max_delay)
+    detected = [d for d in delays if d >= 0]
+    return {
+        **{key: float(value) for key, value in point.items()},
+        "precision_at_k": precision_at_k(labels, scores, precision_k),
+        "region_recall": region_recall(labels, mask),
+        "detected_events": float(len(detected)),
+        "events": float(len(delays)),
+        "mean_delay": mean_delay(delays),
+    }
+
+
+def aggregate_metrics(rows: list[dict[str, float]]) -> dict[str, float]:
+    """Mean of every metric across series, ignoring NaN delays."""
+    if not rows:
+        raise ValueError("no metric rows to aggregate")
+    keys = [key for key in rows[0] if key != "series"]
+    summary: dict[str, float] = {}
+    for key in keys:
+        values = np.array([row[key] for row in rows if key in row], dtype=np.float64)
+        finite = values[np.isfinite(values)]
+        summary[key] = float(np.mean(finite)) if finite.size else float("nan")
+    summary["series"] = float(len(rows))
+    return summary

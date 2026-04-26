@@ -79,3 +79,34 @@ def test_injections_are_bounded_to_their_region():
 
     varied = inject_variance_change(np.ones(200), 70, 10, 3.0, np.random.default_rng(0))
     assert varied[70:80].std() > varied[:60].std()
+
+
+def test_trend_and_seasonality_components():
+    trend = trend_component(10, 0.5)
+    assert trend.tolist() == [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5]
+    wave = seasonal_component(48, [(24, 2.0)], None)
+    assert abs(wave[:24].sum()) < 1e-9
+    assert np.isclose(wave[6], 2.0)  # sin(pi/2)
+    with pytest.raises(ValueError):
+        seasonal_component(10, [])
+
+
+def test_ar1_noise_has_requested_variance_and_errors():
+    rng = np.random.default_rng(3)
+    noise = ar1_noise(4000, 1.0, 0.5, rng)
+    assert 0.5 < noise.std() < 2.2
+    assert np.corrcoef(noise[:-1], noise[1:])[0, 1] > 0.2
+    with pytest.raises(ValueError):
+        ar1_noise(10, -1.0, 0.2, rng)
+    with pytest.raises(ValueError):
+        ar1_noise(10, 1.0, 1.5, rng)
+
+
+def test_dataset_summary_counts_events(tiny_config, tiny_dataset):
+    from src.anomaly.generator import dataset_summary
+
+    summary = dataset_summary(tiny_dataset)
+    assert summary["series"] == tiny_config.generator.n_series
+    assert summary["events"] == sum(len(s.events) for s in tiny_dataset)
+    assert 0 < summary["point_rate"] < 0.5
+    assert set(summary["events_by_kind"]) <= {"spike", "level_shift", "variance_change", "missing_block"}
