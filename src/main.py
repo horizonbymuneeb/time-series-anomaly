@@ -386,3 +386,5 @@ if __name__ == '__main__':
 # Update Prometheus exporter for metrics [2026-04-24T10:09:55]
 
 # Update documentation for deployment options [2026-04-24T12:55:29]
+
+# Add alerting integration with PagerDuty API [2026-04-26T14:41:50]
