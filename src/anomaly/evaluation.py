@@ -167,3 +167,18 @@ def aggregate_metrics(rows: list[dict[str, float]]) -> dict[str, float]:
         summary[key] = float(np.mean(finite)) if finite.size else float("nan")
     summary["series"] = float(len(rows))
     return summary
+
+
+def compare_table(per_series: dict[str, list[dict[str, float]]]) -> pd.DataFrame:
+    """Rows = detectors, columns = aggregated metrics."""
+    rows = []
+    for detector, metrics in per_series.items():
+        summary = aggregate_metrics([{k: v for k, v in row.items() if k != "detector"} for row in metrics])
+        summary["detector"] = detector
+        rows.append(summary)
+    table = pd.DataFrame(rows).set_index("detector")
+    preferred = [
+        "precision_at_k", "precision", "recall", "f1", "region_recall", "mean_delay", "events",
+    ]
+    columns = [column for column in preferred if column in table.columns]
+    return table[columns].sort_values("f1", ascending=False)

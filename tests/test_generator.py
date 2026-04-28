@@ -110,3 +110,13 @@ def test_dataset_summary_counts_events(tiny_config, tiny_dataset):
     assert summary["events"] == sum(len(s.events) for s in tiny_dataset)
     assert 0 < summary["point_rate"] < 0.5
     assert set(summary["events_by_kind"]) <= {"spike", "level_shift", "variance_change", "missing_block"}
+
+
+def test_base_series_is_smooth_and_calibration_length_guarded(tiny_config):
+    rng = np.random.default_rng(0)
+    clean = base_series(tiny_config, rng)
+    assert clean.shape == (tiny_config.generator.length,)
+    assert abs(float(np.mean(np.diff(clean)))) < 5.0
+    assert calibration_length(1000, 0.3) == 300
+    with pytest.raises(ValueError):
+        calibration_length(100, 0.9)
