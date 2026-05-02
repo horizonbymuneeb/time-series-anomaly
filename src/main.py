@@ -394,3 +394,5 @@ if __name__ == '__main__':
 # Fix missing value handling in preprocessing [2026-04-28T16:01:32]
 
 # WIP: benchmarking on Yahoo anomaly dataset [2026-04-29T12:08:44]
+
+# Add seasonality decomposition for trends [2026-05-02T19:36:32]
