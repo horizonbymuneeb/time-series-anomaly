@@ -396,3 +396,5 @@ if __name__ == '__main__':
 # WIP: benchmarking on Yahoo anomaly dataset [2026-04-29T12:08:44]
 
 # Add seasonality decomposition for trends [2026-05-02T19:36:32]
+
+# Implement LSTM autoencoder for anomaly detection [2026-05-02T12:58:35]
