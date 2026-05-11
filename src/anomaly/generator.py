@@ -91,3 +91,22 @@ def ar1_noise(length: int, std: float, coefficient: float, rng: np.random.Genera
     for i in range(1, length):
         noise[i] = coefficient * noise[i - 1] + innovations[i]
     return noise
+
+
+def base_series(cfg: Config, rng: np.random.Generator) -> np.ndarray:
+    """Clean series: trend + daily and weekly cycles + AR(1) noise."""
+    g = cfg.generator
+    periods = ((g.period, 2.5), (g.weekly_period, 1.4), (max(g.period // 2, 2), 0.6))
+    return (
+        trend_component(g.length, g.trend_slope)
+        + seasonal_component(g.length, periods, rng)
+        + ar1_noise(g.length, g.noise_std, g.ar_coefficient, rng)
+    )
+
+
+def inject_spike(values: np.ndarray, start: int, width: int, magnitude: float, rng: np.random.Generator) -> np.ndarray:
+    """Short additive excursion, positive or negative."""
+    out = values.copy()
+    sign = 1.0 if rng.random() < 0.6 else -1.0
+    out[start : start + width] += sign * magnitude * float(rng.uniform(0.8, 1.3))
+    return out
