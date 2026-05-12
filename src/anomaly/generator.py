@@ -110,3 +110,23 @@ def inject_spike(values: np.ndarray, start: int, width: int, magnitude: float, r
     sign = 1.0 if rng.random() < 0.6 else -1.0
     out[start : start + width] += sign * magnitude * float(rng.uniform(0.8, 1.3))
     return out
+
+
+def inject_level_shift(
+    values: np.ndarray, start: int, duration: int, offset: float, rng: np.random.Generator
+) -> np.ndarray:
+    """Step change that persists for ``duration`` points."""
+    out = values.copy()
+    out[start : start + duration] += offset * float(rng.uniform(0.8, 1.2))
+    return out
+
+
+def inject_variance_change(
+    values: np.ndarray, start: int, duration: int, factor: float, rng: np.random.Generator
+) -> np.ndarray:
+    """Stretch or compress the local deviation from its pre-window mean."""
+    out = values.copy()
+    local = float(np.mean(values[max(0, start - 10) : start])) if start > 0 else float(values[0])
+    region = slice(start, start + duration)
+    out[region] = local + (values[region] - local) * factor + rng.normal(0.0, 0.4, size=duration)
+    return out
