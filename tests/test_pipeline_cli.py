@@ -50,3 +50,36 @@ def test_metrics_row_matches_detector_result(tiny_config, tiny_dataset):
     assert 0.0 <= row["precision"] <= 1.0
     assert 0.0 <= row["recall"] <= 1.0
     assert row["flagged"] == result.flagged
+
+
+def test_save_load_and_report(tiny_config, tmp_path):
+    experiment = run_experiment(tiny_config)
+    path = save_results(tmp_path / "nested" / "results.json", experiment)
+    payload = load_results(path)
+    assert payload["detectors"] == available_detectors()
+    assert len(payload["comparison"]) == 3
+    assert payload["dataset_summary"]["series"] == tiny_config.generator.n_series
+    report = format_report(experiment)
+    assert "rolling_zscore" in report and "isolation_forest" in report
+    assert "events" in report
+    import pytest
+
+    with pytest.raises(FileNotFoundError):
+        load_results(tmp_path / "missing.json")
+
+
+def test_cli_writes_results(tiny_config, tmp_path):
+    config_path = tmp_path / "config.yaml"
+    import yaml
+
+    from src.anomaly.config import DEFAULT_CONFIG_PATH, read_yaml
+
+    raw = read_yaml(DEFAULT_CONFIG_PATH)
+    raw.update({"seed": 3, "generator": {**raw["generator"], "n_series": 2, "length": 400, "anomaly_rate": 0.04},
+                "detector": {**raw["detector"], "iforest_n_estimators": 30, "iforest_window": 10}})
+    config_path.write_text(yaml.safe_dump(raw))
+    out_dir = tmp_path / "outputs"
+    assert run_main(["--config", str(config_path), "--output-dir", str(out_dir)]) == 0
+    payload = json.loads((out_dir / "results.json").read_text())
+    assert len(payload["comparison"]) == 3
+    assert np.isfinite([row["f1"] for row in payload["comparison"]]).all()

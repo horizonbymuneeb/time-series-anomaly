@@ -130,3 +130,21 @@ def inject_variance_change(
     region = slice(start, start + duration)
     out[region] = local + (values[region] - local) * factor + rng.normal(0.0, 0.4, size=duration)
     return out
+
+
+def inject_missing_block(values: np.ndarray, start: int, duration: int, fill: float = np.nan) -> np.ndarray:
+    """Replace a segment with a sentinel; the label still marks it anomalous."""
+    out = values.copy()
+    out[start : start + duration] = fill
+    return out
+
+
+def injection_lengths(cfg: Config) -> dict[str, tuple[int, int]]:
+    """Minimum and maximum duration (in points) for each anomaly type."""
+    g = cfg.generator
+    return {
+        "spike": (1, 3),
+        "level_shift": (g.period // 2 + 2, g.period * 2),
+        "variance_change": (g.period // 2 + 2, g.period * 2),
+        "missing_block": (2, max(3, g.period // 4)),
+    }
