@@ -148,3 +148,65 @@ def injection_lengths(cfg: Config) -> dict[str, tuple[int, int]]:
         "variance_change": (g.period // 2 + 2, g.period * 2),
         "missing_block": (2, max(3, g.period // 4)),
     }
+
+
+def choose_events(
+    length: int, calibration_end: int, rate: float, kinds: Sequence[str], rng: np.random.Generator
+) -> list[AnomalyEvent]:
+    """Pick non-overlapping labelled regions after the calibration prefix."""
+    usable = length - calibration_end
+    if usable <= 0:
+        raise ValueError("calibration window leaves no evaluation points")
+    budget = max(1, int(round(usable * rate)))
+    lens = injection_lengths_for(kinds)
+    events: list[AnomalyEvent] = []
+    occupied = np.zeros(length, dtype=bool)
+    attempts = 0
+    while len(events) < budget and attempts < budget * 40:
+        attempts += 1
+        kind = str(rng.choice(list(kinds)))
+        low, high = lens[kind]
+        width = int(rng.integers(low, high + 1))
+        start = int(rng.integers(calibration_end, max(calibration_end + 1, length - width)))
+        end = min(length, start + width)
+        margin = 2
+        if occupied[max(0, start - margin) : min(length, end + margin)].any():
+            continue
+        occupied[start:end] = True
+        events.append(AnomalyEvent(kind=kind, start=start, end=end))
+    return sorted(events, key=lambda event: event.start)
+
+
+def injection_lengths_for(kinds: Sequence[str]) -> dict[str, tuple[int, int]]:
+    """Duration ranges for a subset of anomaly kinds, independent of config."""
+    defaults = {
+        "spike": (1, 3),
+        "level_shift": (14, 48),
+        "variance_change": (14, 48),
+        "missing_block": (2, 6),
+    }
+    unknown = set(kinds) - set(defaults)
+    if unknown:
+        raise ValueError(f"unknown anomaly kinds: {sorted(unknown)}")
+    return {kind: defaults[kind] for kind in kinds}
+
+
+def apply_events(
+    values: np.ndarray, events: Sequence[AnomalyEvent], cfg: Config, rng: np.random.Generator
+) -> np.ndarray:
+    """Apply each event to a copy of the clean series."""
+    g = cfg.generator
+    out = values.copy()
+    for event in events:
+        duration = event.end - event.start
+        if event.kind == "spike":
+            out = inject_spike(out, event.start, duration, g.spike_magnitude, rng)
+        elif event.kind == "level_shift":
+            out = inject_level_shift(out, event.start, duration, g.level_shift_offset, rng)
+        elif event.kind == "variance_change":
+            out = inject_variance_change(out, event.start, duration, g.variance_factor, rng)
+        elif event.kind == "missing_block":
+            out = inject_missing_block(out, event.start, duration, np.nan)
+        else:  # pragma: no cover - guarded by config validation
+            raise ValueError(f"unsupported anomaly kind: {event.kind}")
+    return out
