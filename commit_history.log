@@ -439,3 +439,4 @@
 [2026-05-27T19:10:21] Update isolation forest implementation
 [2026-05-27T09:46:22] Implement real-time streaming detection
 [2026-06-01T14:14:19] Update documentation for deployment options
+[2026-06-01T16:01:42] WIP: benchmarking on Yahoo anomaly dataset

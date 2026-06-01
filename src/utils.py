@@ -221,3 +221,5 @@ def format_number(n: int) -> str:
 # WIP: debugging false positive rate spikes [2026-05-23T16:26:20]
 
 # Update documentation for deployment options [2026-06-01T14:14:19]
+
+# WIP: benchmarking on Yahoo anomaly dataset [2026-06-01T16:01:42]
