@@ -219,3 +219,5 @@ def format_number(n: int) -> str:
 # Add support for multi-variate time series [2026-05-13T14:06:43]
 
 # WIP: debugging false positive rate spikes [2026-05-23T16:26:20]
+
+# Update documentation for deployment options [2026-06-01T14:14:19]
