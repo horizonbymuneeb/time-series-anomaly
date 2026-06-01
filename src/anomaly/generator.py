@@ -210,3 +210,42 @@ def apply_events(
         else:  # pragma: no cover - guarded by config validation
             raise ValueError(f"unsupported anomaly kind: {event.kind}")
     return out
+
+
+def label_events(length: int, events: Sequence[AnomalyEvent], kinds: Sequence[str]) -> tuple[np.ndarray, np.ndarray]:
+    """Boolean labels and per-point kind labels from the event list."""
+    labels = np.zeros(length, dtype=bool)
+    kind_labels = np.full(length, "", dtype=object)
+    for event in events:
+        labels[event.start : event.end] = True
+        kind_labels[event.start : event.end] = event.kind
+    return labels, kind_labels
+
+
+def calibration_length(length: int, fraction: float) -> int:
+    """Number of leading points reserved for the clean calibration window."""
+    if not 0.0 < fraction < 0.8:
+        raise ValueError("fraction must be in (0, 0.8)")
+    return max(10, int(round(length * fraction)))
+
+
+def generate_series(cfg: Config, seed: int) -> AnomalySeries:
+    """Generate one labelled series from a seed."""
+    rng = np.random.default_rng(seed)
+    clean = base_series(cfg, rng)
+    cal_end = calibration_length(cfg.generator.length, cfg.generator.calibration_fraction)
+    events = choose_events(
+        cfg.generator.length, cal_end, cfg.generator.anomaly_rate,
+        cfg.generator.anomaly_types, rng,
+    )
+    values = apply_events(clean, events, cfg, rng)
+    labels, kinds = label_events(cfg.generator.length, events, cfg.generator.anomaly_types)
+    return AnomalySeries(
+        values=values,
+        clean=clean,
+        labels=labels,
+        kinds=kinds,
+        events=tuple(events),
+        calibration_end=cal_end,
+        seed=seed,
+    )
