@@ -249,3 +249,28 @@ def generate_series(cfg: Config, seed: int) -> AnomalySeries:
         calibration_end=cal_end,
         seed=seed,
     )
+
+
+def generate_dataset(cfg: Config) -> list[AnomalySeries]:
+    """One series per configured series count, seeded from ``cfg.seed``."""
+    return [generate_series(cfg, cfg.seed + i) for i in range(cfg.generator.n_series)]
+
+
+def dataset_summary(series: Sequence[AnomalySeries]) -> dict[str, object]:
+    """Counts used by the CLI and the README."""
+    if not series:
+        raise ValueError("empty dataset")
+    total_points = sum(s.length for s in series)
+    anomalous = sum(int(s.labels.sum()) for s in series)
+    by_kind: dict[str, int] = {}
+    for s in series:
+        for event in s.events:
+            by_kind[event.kind] = by_kind.get(event.kind, 0) + 1
+    return {
+        "series": len(series),
+        "points": total_points,
+        "anomalous_points": anomalous,
+        "point_rate": anomalous / total_points,
+        "events": sum(len(s.events) for s in series),
+        "events_by_kind": by_kind,
+    }
