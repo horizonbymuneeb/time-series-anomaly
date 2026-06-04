@@ -410,3 +410,5 @@ if __name__ == '__main__':
 # Add alerting integration with PagerDuty API [2026-06-02T15:41:48]
 
 # Fix missing value handling in preprocessing [2026-06-02T18:40:23]
+
+# Add Prophet-based anomaly detection pipeline [2026-06-04T17:38:04]
