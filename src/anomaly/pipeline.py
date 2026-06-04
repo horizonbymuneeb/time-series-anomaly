@@ -27,3 +27,26 @@ DETECTORS = {
 def available_detectors() -> list[str]:
     """Detector names in a stable order, used by the CLI and the report."""
     return list(DETECTORS)
+
+
+def prepare_series(series: AnomalySeries) -> tuple[np.ndarray, np.ndarray]:
+    """Return the interpolated series and its anomaly-free calibration prefix."""
+    values = fill_missing(series.values)
+    calibration = fill_missing(series.calibration_values)
+    return values, calibration
+
+
+def run_detector(name: str, series: AnomalySeries, cfg: Config) -> DetectionResult:
+    """Run one named detector on one series."""
+    if name not in DETECTORS:
+        raise ValueError(f"unknown detector {name!r}; choose from {available_detectors()}")
+    values, calibration = prepare_series(series)
+    try:
+        return DETECTORS[name](values, calibration, cfg.detector)
+    except ValueError as error:
+        raise ValueError(f"detector {name} failed on series seed {series.seed}: {error}") from error
+
+
+def run_series(series: AnomalySeries, cfg: Config) -> dict[str, DetectionResult]:
+    """Run all detectors on a single series."""
+    return {name: run_detector(name, series, cfg) for name in available_detectors()}
