@@ -446,3 +446,4 @@
 [2026-06-02T11:01:29] WIP: tuning threshold for business metrics
 [2026-06-04T17:14:09] Update Prometheus exporter for metrics
 [2026-06-04T17:38:04] Add Prophet-based anomaly detection pipeline
+[2026-06-07T15:44:08] Implement root cause analysis correlation
