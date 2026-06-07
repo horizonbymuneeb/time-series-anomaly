@@ -50,3 +50,43 @@ def run_detector(name: str, series: AnomalySeries, cfg: Config) -> DetectionResu
 def run_series(series: AnomalySeries, cfg: Config) -> dict[str, DetectionResult]:
     """Run all detectors on a single series."""
     return {name: run_detector(name, series, cfg) for name in available_detectors()}
+
+
+def metrics_row(series: AnomalySeries, name: str, result: DetectionResult, cfg: Config) -> dict[str, float]:
+    """Evaluate one detector result against the ground-truth labels."""
+    row = evaluate_detector(
+        series.labels,
+        result.scores,
+        result.mask,
+        cfg.evaluation.precision_k,
+        cfg.detector.delay_window,
+    )
+    row["series"] = float(series.seed)
+    row["detector"] = name  # type: ignore[assignment]
+    row["flagged"] = float(result.flagged)
+    return row
+
+
+def run_experiment(cfg: Config) -> dict[str, object]:
+    """Generate the dataset, run every detector and aggregate the metrics."""
+    dataset = generate_dataset(cfg)
+    per_series_metrics: dict[str, list[dict[str, float]]] = {name: [] for name in available_detectors()}
+    rows: list[dict[str, object]] = []
+    for series in dataset:
+        results = run_series(series, cfg)
+        for name, result in results.items():
+            row = metrics_row(series, name, result, cfg)
+            per_series_metrics[name].append(row)  # type: ignore[arg-type]
+            rows.append({"series": series.seed, "detector": name, **_strip(row)})
+    comparison = compare_table(per_series_metrics)
+    return {
+        "config": cfg,
+        "dataset_summary": dataset_summary(dataset),
+        "per_detector": {name: rows_for for name, rows_for in per_series_metrics.items()},
+        "per_series": rows,
+        "comparison": comparison,
+    }
+
+
+def _strip(row: dict[str, float]) -> dict[str, float]:
+    return {key: value for key, value in row.items() if key not in {"series", "detector"}}
