@@ -90,3 +90,39 @@ def run_experiment(cfg: Config) -> dict[str, object]:
 
 def _strip(row: dict[str, float]) -> dict[str, float]:
     return {key: value for key, value in row.items() if key not in {"series", "detector"}}
+
+
+def save_results(path: str | Path, experiment: dict[str, object]) -> Path:
+    """Persist summary, per-series metrics and the comparison table as JSON."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    comparison: pd.DataFrame = experiment["comparison"]  # type: ignore[assignment]
+    payload = {
+        "dataset_summary": experiment["dataset_summary"],
+        "comparison": comparison.reset_index().to_dict(orient="records"),
+        "per_series": experiment["per_series"],
+        "detectors": available_detectors(),
+    }
+    path.write_text(json.dumps(payload, indent=2, default=float), encoding="utf-8")
+    return path
+
+
+def load_results(path: str | Path) -> dict[str, object]:
+    """Read a JSON report written by :func:`save_results`."""
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"results not found: {path}")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def format_report(experiment: dict[str, object]) -> str:
+    """Console table: one row per detector with the headline metrics."""
+    comparison: pd.DataFrame = experiment["comparison"]  # type: ignore[assignment]
+    summary = experiment["dataset_summary"]
+    lines = [
+        f"dataset: {summary['series']} series, {summary['points']} points, "
+        f"{summary['events']} events ({summary['point_rate']:.2%} anomalous points)",
+        "",
+        comparison.round(3).to_string(),
+    ]
+    return "\n".join(lines)
