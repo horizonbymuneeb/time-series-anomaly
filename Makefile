@@ -1,0 +1,20 @@
+PYTHON ?= python3
+CONFIG ?= config.yaml
+
+.PHONY: install test lint run clean
+
+install:
+	$(PYTHON) -m pip install -r requirements.txt
+
+test:
+	$(PYTHON) -m pytest -q
+
+lint:
+	$(PYTHON) -m compileall -q src tests
+
+run:
+	$(PYTHON) -m src.anomaly.run --config $(CONFIG)
+
+clean:
+	rm -rf outputs .pytest_cache data
+	find . -name __pycache__ -type d -prune -exec rm -rf {} +
