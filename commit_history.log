@@ -451,3 +451,4 @@
 [2026-06-09T15:14:49] Update isolation forest implementation
 [2026-06-09T13:28:13] Implement root cause analysis correlation
 [2026-06-10T18:12:29] Implement ensemble of multiple detectors
+[2026-06-11T10:44:04] Add support for multi-variate time series

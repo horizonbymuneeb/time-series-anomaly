@@ -414,3 +414,5 @@ if __name__ == '__main__':
 # Add Prophet-based anomaly detection pipeline [2026-06-04T17:38:04]
 
 # Update isolation forest implementation [2026-06-09T15:14:49]
+
+# Add support for multi-variate time series [2026-06-11T10:44:04]
