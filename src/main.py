@@ -1,418 +1,190 @@
-#!usr/bin/env python3
-"""Main module for production time-series-anomaly."""
 import torch
 import torch.nn as nn
 import numpy as np
-import pandas as pd
-from pathlib import Path
+import random
 import json
-import yaml
-from typing import Dict, List, Optional, Tuple
 import logging
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class Config:
-    """Configuration manager."""
-    
-    def __init__(self, config_path: str):
-        self.config_path = config_path
-        self.data = self._load()
-    
-    def _load(self) -> Dict:
-        with open(self.config_path, 'r') as f:
-            return yaml.safe_load(f)
-    
-    def get(self, key: str, default=None):
-        keys = key.split('.')
-        value = self.data
-        for k in keys:
-            value = value.get(k, default)
-            if value is None:
-                return default
-        return value
 
-
-class BaseModel(nn.Module):
-    """Base model class with training and presserving functionality."""
-    
-    def __init__(self, config: Config):
-        super().__init__()
-        self.config = config
-        self.device = torch.device(config.get('training.device', 'cpu'))
-        self._setup_model()
-    
-    def _setup_model(self):
-        """Override in subclass to define model architecture."""
-        pass
-    
-    def fit(self, dataset, epochs: int = 100):
-        """Train the model on given dataset."""
-        self.to(self.device)
+class ProductionModel(nn.Module):
+    def __init__(self, input_dim: int = 784, hidden_dims: List[int] = [256, 128],
+                 num_classes: int = 10, dropout: float = 0.2):
+        super(ProductionModel, self).__init__()
+        self.input_dim = input_dim
+        self.num_classes = num_classes
         
-        optimizer = torch.optim.Adam(
-            self.parameters(),
-            lr=self.config.get('training.learning_rate', 0.001)
-        )
-        criterion = nn.CrossEntropyLoss()
+        # Build layers dynamically
+        layers = []
+        prev_dim = input_dim
+        for h_dim in hidden_dims:
+            layers.append(nn.Linear(prev_dim, h_dim))
+            layers.append(nn.BatchNorm1d(h_dim))
+            layers.append(nn.ReLU(inplace=True))
+            layers.append(nn.Dropout(dropout))
+            prev_dim = h_dim
         
-        logger.info(f"Training for {epochs} epochs")
+        layers.append(nn.Linear(prev_dim, num_classes))
+        self.network = nn.Sequential(*layers)
         
-        for epoch in range(epochs):
-            self.train()
-            total_loss = 0.0
-            correct = 0
-            total = 0
-            
-            for batch_idx, (data, target) in enumerate(dataset):
-                data, target = data.to(self.device), target.to(self.device)
-                
-                optimizer.zero_grad()
-                output = self(data)
-                loss = criterion(output, target)
-                loss.backward()
-                optimizer.step()
-                
-                total_loss += loss.item()
-                pred = output.argmax(dim=1)
-                correct += pred.eq(target).sum().item()
-                total += target.size(0)
-            
-            accuracy = correct / total
-            logger.info(f"Epoch {epoch+1}/{epochs}: "
-                       f"Loss={total_loss:.4f}, Accuracy={accuracy:.4f}")
+        # Initialize weights
+        self._initialize_weights()
+        
+        self.config = {
+            'input_dim': input_dim,
+            'hidden_dims': hidden_dims,
+            'num_classes': num_classes,
+            'dropout': dropout
+        }
+    
+    def _initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.BatchNorm1d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+    
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.network(x)
     
     def predict(self, x: torch.Tensor) -> torch.Tensor:
-        """Make predictions on input data."""
         self.eval()
         with torch.no_grad():
-            return self(x.to(self.device))
+            return torch.softmax(self(x), dim=1)
     
     def save(self, path: str):
-        """Save model checkpoint."""
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         torch.save({
-            'config': self.config.data,
-            'state_dict': self.state_dict()
+            'config': self.config,
+            'state_dict': self.state_dict(),
+            'network': self.network
         }, path)
         logger.info(f"Model saved to {path}")
     
     @classmethod
     def load(cls, path: str):
-        """Load model from checkpoint."""
         checkpoint = torch.load(path, map_location='cpu')
-        config = Config(checkpoint['config'])
-        model = cls(config)
+        model = cls(**checkpoint['config'])
         model.load_state_dict(checkpoint['state_dict'])
         return model
 
-
-class DataLoader:
-    """Generic data loader with preprocessing."""
+class Trainer:
+    def __init__(self, model: nn.Module, device: str = 'cuda' if torch.cuda.is_available() else 'cpu',
+                 lr: float = 0.001, weight_decay: float = 1e-4):
+        self.model = model.to(device)
+        self.device = device
+        self.optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, patience=5)
+        self.criterion = nn.CrossEntropyLoss()
+        self.history = {'train_loss': [], 'val_loss': [], 'val_acc': []}
     
-    def __init__(self, source: str, batch_size: int = 32,
-                 shuffle: bool = True, num_workers: int = 4):
-        self.source = source
-        self.batch_size = batch_size
-        self.shuffle = shuffle
-        self.num_workers = num_workers
-        self.data = None
-        self.labels = None
+    def train_epoch(self, train_loader):
+        self.model.train()
+        total_loss = 0.0
+        for batch_idx, (data, target) in enumerate(train_loader):
+            data, target = data.to(self.device), target.to(self.device)
+            self.optimizer.zero_grad()
+            output = self.model(data)
+            loss = self.criterion(output, target)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+            self.optimizer.step()
+            total_loss += loss.item()
+        return total_loss / len(train_loader)
     
-    def load(self):
-        """Load data from source."""
-        # Load from CSV/Parquet/etc
-        if Path(self.source).suffix == '.csv':
-            df = pd.read_csv(self.source)
-        elif Path(self.source).suffix == '.parquet':
-            df = pd.read_parquet(self.source)
-        else:
-            raise ValueError(f"Unsupported file format: {self.source}")
-        
-        self.data = df.drop('target', axis=1).values
-        self.labels = df['target'].values
-        
-        return self
+    def validate(self, val_loader):
+        self.model.eval()
+        val_loss = 0.0
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for data, target in val_loader:
+                data, target = data.to(self.device), target.to(self.device)
+                output = self.model(data)
+                val_loss += self.criterion(output, target).item()
+                pred = output.argmax(dim=1)
+                correct += pred.eq(target).sum().item()
+                total += target.size(0)
+        return val_loss / len(val_loader), 100. * correct / total
     
-    def __iter__(self):
-        """Iterator yielding batches."""
-        if self.data is None:
-            self.load()
+    def fit(self, train_loader, val_loader, epochs: int = 100, patience: int = 10):
+        logger.info(f"Training for {epochs} epochs with patience {patience}")
+        best_loss = float('inf')
+        patience_counter = 0
         
-        indices = np.arange(len(self.data))
-        if self.shuffle:
-            np.random.shuffle(indices)
+        for epoch in range(1, epochs + 1):
+            train_loss = self.train_epoch(train_loader)
+            val_loss, val_acc = self.validate(val_loader)
+            
+            self.history['train_loss'].append(train_loss)
+            self.history['val_loss'].append(val_loss)
+            self.history['val_acc'].append(val_acc)
+            
+            self.scheduler.step(val_loss)
+            
+            if val_loss < best_loss:
+                best_loss = val_loss
+                patience_counter = 0
+                # Save best model
+                self.model.save('models/best_model.pt')
+            else:
+                patience_counter += 1
+            
+            if epoch % 10 == 0:
+                logger.info(f"Epoch {epoch}/{epochs} | "
+                          f"Train Loss: {train_loss:.4f} | "
+                          f"Val Loss: {val_loss:.4f} | "
+                          f"Val Acc: {val_acc:.2f}%")
+            
+            if patience_counter >= patience:
+                logger.info(f"Early stopping at epoch {epoch}")
+                break
         
-        for i in range(0, len(indices), self.batch_size):
-            batch_idx = indices[i:i + self.batch_size]
-            yield (torch.FloatTensor(self.data[batch_idx]),
-                   torch.LongTensor(self.labels[batch_idx]))
+        return self.history
 
 
 def main():
-    """Main entry point."""
-    logger.info("Starting time-series-anomaly pipeline")
+    logger.info("Starting training pipeline")
     
-    # Load configuration
-    config = Config('config.yaml')
+    # Set all seeds for reproducibility
+    seed = 42
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+    
+    # Example: simple dataset (replace with real data)
+    from torch.utils.data import TensorDataset, DataLoader
+    
+    # Create synthetic dataset
+    n_samples = 1000
+    X = torch.randn(n_samples, 784)
+    y = torch.randint(0, 10, (n_samples,))
+    
+    train_dataset = TensorDataset(X, y)
+    val_dataset = TensorDataset(X, y)
+    
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=32)
     
     # Initialize model
-    model = BaseModel(config)
-    
-    # Load data
-    data_loader = DataLoader(config.get('data.path'))
+    model = ProductionModel(input_dim=784, hidden_dims=[512, 256, 128], num_classes=10)
     
     # Train
-    model.fit(data_loader)
+    trainer = Trainer(model, lr=0.001)
+    history = trainer.fit(train_loader, val_loader, epochs=50, patience=10)
     
-    # Save
-    model.save('models/model.pt')
+    logger.info("Training completed successfully")
     
-    logger.info("Pipeline completed successfully")
-
+    return history
 
 if __name__ == '__main__':
     main()
-
-# Implement ensemble of multiple detectors [2025-06-15T17:54:41]
-
-# Implement ensemble of multiple detectors [2025-06-19T11:56:53]
-
-# Add causal impact analysis for events [2025-06-24T13:28:52]
-
-# WIP: debugging false positive rate spikes [2025-06-24T12:22:34]
-
-# Implement LSTM autoencoder for anomaly detection [2025-06-28T19:58:03]
-
-# Update Prometheus exporter for metrics [2025-06-30T18:23:58]
-
-# Implement real-time streaming detection [2025-07-02T09:47:11]
-
-# WIP: tuning threshold for business metrics [2025-07-07T20:58:37]
-
-# Fix missing value handling in preprocessing [2025-07-07T09:40:02]
-
-# Add alerting integration with PagerDuty API [2025-07-09T09:14:32]
-
-# Add Prophet-based anomaly detection pipeline [2025-07-16T16:19:38]
-
-# Update dashboard with real-time Plotly charts [2025-07-19T13:45:48]
-
-# Implement root cause analysis correlation [2025-07-19T12:37:10]
-
-# Add alerting integration with PagerDuty API [2025-07-22T16:55:52]
-
-# Add seasonality decomposition for trends [2025-07-23T12:15:21]
-
-# WIP: benchmarking on Yahoo anomaly dataset [2025-07-24T16:04:12]
-
-# Implement real-time streaming detection [2025-07-28T16:45:57]
-
-# WIP: tuning threshold for business metrics [2025-07-28T16:11:59]
-
-# Update dashboard with real-time Plotly charts [2025-08-08T10:01:35]
-
-# Update documentation for deployment options [2025-08-12T15:19:33]
-
-# Add Prophet-based anomaly detection pipeline [2025-08-14T10:40:04]
-
-# Update dashboard with real-time Plotly charts [2025-08-15T17:20:31]
-
-# WIP: debugging false positive rate spikes [2025-08-26T16:49:40]
-
-# Add Prophet-based anomaly detection pipeline [2025-08-28T15:32:11]
-
-# Add causal impact analysis for events [2025-09-03T20:09:32]
-
-# Implement unsupervised pretraining pipeline [2025-09-03T19:14:39]
-
-# WIP: debugging false positive rate spikes [2025-09-08T14:45:24]
-
-# Implement real-time streaming detection [2025-09-09T19:44:37]
-
-# Add alerting integration with PagerDuty API [2025-09-10T19:50:42]
-
-# Add support for multi-variate time series [2025-09-10T20:28:18]
-
-# Fix missing value handling in preprocessing [2025-09-11T10:42:43]
-
-# Add seasonality decomposition for trends [2025-09-12T12:11:16]
-
-# Update Prometheus exporter for metrics [2025-09-16T19:07:49]
-
-# Fix sliding window edge case handling [2025-09-16T14:10:37]
-
-# Implement real-time streaming detection [2025-09-18T15:11:55]
-
-# Fix sliding window edge case handling [2025-09-23T16:28:14]
-
-# WIP: benchmarking on Yahoo anomaly dataset [2025-09-25T11:09:59]
-
-# WIP: debugging false positive rate spikes [2025-09-29T14:41:51]
-
-# WIP: benchmarking on Yahoo anomaly dataset [2025-09-29T20:28:38]
-
-# Add Prophet-based anomaly detection pipeline [2025-10-02T19:04:56]
-
-# Add support for multi-variate time series [2025-10-07T11:13:29]
-
-# Update Prometheus exporter for metrics [2025-10-08T10:59:10]
-
-# Update documentation for deployment options [2025-10-11T15:12:02]
-
-# Implement LSTM autoencoder for anomaly detection [2025-10-12T09:59:39]
-
-# WIP: debugging false positive rate spikes [2025-10-16T13:21:34]
-
-# WIP: benchmarking on Yahoo anomaly dataset [2025-10-16T09:33:45]
-
-# Implement ensemble of multiple detectors [2025-10-21T13:04:15]
-
-# Update isolation forest implementation [2025-10-21T11:00:24]
-
-# WIP: tuning threshold for business metrics [2025-10-23T18:13:08]
-
-# Implement root cause analysis correlation [2025-10-24T20:58:27]
-
-# Implement unsupervised pretraining pipeline [2025-10-27T10:44:14]
-
-# Update isolation forest implementation [2025-10-28T18:15:32]
-
-# Implement real-time streaming detection [2025-10-29T17:22:51]
-
-# Implement LSTM autoencoder for anomaly detection [2025-10-29T15:20:55]
-
-# Add Prophet-based anomaly detection pipeline [2025-10-30T11:29:01]
-
-# Fix missing value handling in preprocessing [2025-11-09T11:27:47]
-
-# Add seasonality decomposition for trends [2025-11-12T12:50:18]
-
-# Update isolation forest implementation [2025-11-17T17:51:36]
-
-# Implement root cause analysis correlation [2025-11-18T20:57:38]
-
-# Add alerting integration with PagerDuty API [2025-11-18T19:33:18]
-
-# Update Prometheus exporter for metrics [2025-11-19T20:28:41]
-
-# Add causal impact analysis for events [2025-11-27T10:00:14]
-
-# Update dashboard with real-time Plotly charts [2025-12-05T10:19:53]
-
-# Update documentation for deployment options [2025-12-08T17:09:37]
-
-# Implement unsupervised pretraining pipeline [2025-12-12T16:24:56]
-
-# Fix missing value handling in preprocessing [2025-12-15T19:40:14]
-
-# Update documentation for deployment options [2025-12-16T10:24:16]
-
-# Implement auto-config for new metrics [2025-12-19T15:07:38]
-
-# Add support for multi-variate time series [2025-12-21T17:57:19]
-
-# WIP: tuning threshold for business metrics [2025-12-22T13:37:01]
-
-# Implement root cause analysis correlation [2025-12-28T13:46:06]
-
-# Add support for multi-variate time series [2025-12-31T13:41:36]
-
-# Fix sliding window edge case handling [2026-01-02T19:58:21]
-
-# WIP: debugging false positive rate spikes [2026-01-06T10:39:01]
-
-# Add support for multi-variate time series [2026-01-12T12:55:29]
-
-# Update Prometheus exporter for metrics [2026-01-13T18:13:51]
-
-# Add causal impact analysis for events [2026-01-19T11:06:28]
-
-# Implement LSTM autoencoder for anomaly detection [2026-01-21T20:11:19]
-
-# Update dashboard with real-time Plotly charts [2026-01-22T16:40:25]
-
-# WIP: debugging false positive rate spikes [2026-01-22T16:18:19]
-
-# WIP: debugging false positive rate spikes [2026-01-30T13:23:38]
-
-# Fix missing value handling in preprocessing [2026-01-30T17:43:53]
-
-# Add Prophet-based anomaly detection pipeline [2026-02-02T15:10:26]
-
-# Add support for multi-variate time series [2026-02-10T19:51:33]
-
-# Implement real-time streaming detection [2026-02-10T11:30:47]
-
-# Implement auto-config for new metrics [2026-02-12T18:55:43]
-
-# Add seasonality decomposition for trends [2026-02-14T12:49:46]
-
-# Implement root cause analysis correlation [2026-02-16T16:05:49]
-
-# Add causal impact analysis for events [2026-02-19T19:07:54]
-
-# Fix sliding window edge case handling [2026-02-23T16:20:41]
-
-# Add support for multi-variate time series [2026-02-23T10:21:57]
-
-# Implement ensemble of multiple detectors [2026-02-27T13:35:51]
-
-# Update documentation for deployment options [2026-03-03T20:19:23]
-
-# WIP: benchmarking on Yahoo anomaly dataset [2026-03-09T11:52:17]
-
-# Add alerting integration with PagerDuty API [2026-03-11T13:46:45]
-
-# Add support for multi-variate time series [2026-03-12T19:59:18]
-
-# Fix sliding window edge case handling [2026-03-13T18:23:54]
-
-# Implement auto-config for new metrics [2026-03-15T11:36:15]
-
-# Fix missing value handling in preprocessing [2026-03-18T20:31:56]
-
-# Implement real-time streaming detection [2026-03-31T17:28:41]
-
-# Update Prometheus exporter for metrics [2026-04-10T11:59:51]
-
-# Fix missing value handling in preprocessing [2026-04-11T16:38:15]
-
-# Fix missing value handling in preprocessing [2026-04-17T10:32:49]
-
-# Implement auto-config for new metrics [2026-04-19T15:36:39]
-
-# Update Prometheus exporter for metrics [2026-04-24T10:09:55]
-
-# Update documentation for deployment options [2026-04-24T12:55:29]
-
-# Add alerting integration with PagerDuty API [2026-04-26T14:41:50]
-
-# Implement LSTM autoencoder for anomaly detection [2026-04-28T20:52:41]
-
-# Fix missing value handling in preprocessing [2026-04-28T16:01:32]
-
-# WIP: benchmarking on Yahoo anomaly dataset [2026-04-29T12:08:44]
-
-# Add seasonality decomposition for trends [2026-05-02T19:36:32]
-
-# Implement LSTM autoencoder for anomaly detection [2026-05-02T12:58:35]
-
-# Add seasonality decomposition for trends [2026-05-04T13:11:47]
-
-# Implement unsupervised pretraining pipeline [2026-05-11T20:15:33]
-
-# Update isolation forest implementation [2026-05-27T19:10:21]
-
-# Implement real-time streaming detection [2026-05-27T09:46:22]
-
-# Add alerting integration with PagerDuty API [2026-06-02T15:41:48]
-
-# Fix missing value handling in preprocessing [2026-06-02T18:40:23]
-
-# Add Prophet-based anomaly detection pipeline [2026-06-04T17:38:04]
-
-# Update isolation forest implementation [2026-06-09T15:14:49]
-
-# Add support for multi-variate time series [2026-06-11T10:44:04]
